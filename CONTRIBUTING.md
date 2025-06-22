@@ -1,4 +1,4 @@
-# Contributing to {{PACKAGE_NAME}}
+# Contributing to cliete
 
 Thank you for your interest in contributing! This project welcomes contributions from the community.
 
@@ -20,8 +20,8 @@ Thank you for your interest in contributing! This project welcomes contributions
 
 ### Installation
 ```bash
-git clone {{REPO_URL}}
-cd {{PACKAGE_NAME}}
+git clone https://github.com/wannabewayno/cliete
+cd cliete
 npm install
 ```
 
