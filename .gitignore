@@ -10,6 +10,8 @@ lerna-debug.log*
 # .tshy TypeScript HYbrid build temp files
 .tshy/
 
+.tmp/*
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

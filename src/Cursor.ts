@@ -83,7 +83,6 @@ export default class Cursor {
     // Extract the ansi part from our string
     // biome-ignore lint/suspicious/noControlCharactersInRegex: We're expecting control characters
     [ctrl, text] = extract(text, /^(\u001b|\x1b)?\[\??(\d+)?[A-DGlh]/g);
-    if (!ctrl) return text;
 
     if (ctrl === '[?25l') {
       this.hide();

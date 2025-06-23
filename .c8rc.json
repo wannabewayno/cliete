@@ -1,0 +1,27 @@
+{
+  "all": true,
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/test/**",
+    "**/__mocks__/**",
+    "**/interfaces/**",
+    "dist/**"
+  ],
+  "extension": [".ts", ".tsx"],
+  "reporter": ["text", "html", "lcov"],
+  "report-dir": "coverage",
+  "temp-directory": ".tmp/coverage",
+  "check-coverage": true,
+  "branches": 85,
+  "lines": 90,
+  "functions": 90,
+  "statements": 90,
+  "watermarks": {
+    "lines": [80, 90],
+    "functions": [90, 95],
+    "branches": [85, 90],
+    "statements": [80, 90]
+  }
+}

@@ -2,6 +2,12 @@ import { expect } from 'chai';
 import wrapText from './wrapText.js';
 
 describe('wrapText', () => {
+  describe('Error Handling', () => {
+    it('should throw error for wrapping less than 1', () => {
+      expect(() => wrapText('This could never be wrapped!', 0)).to.throw('Limit must be greater than 1');
+    });
+  });
+
   describe('basic wrapping', () => {
     it('should wrap long text at word boundaries', () => {
       const result = wrapText('This is a very long line that needs to be wrapped', 20);

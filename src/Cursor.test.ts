@@ -124,11 +124,13 @@ describe('Cursor', () => {
     it('should handle cursor hide sequence', () => {
       const result = cursor.interpret('[?25l remaining text');
       expect(result).to.equal(' remaining text');
+      expect(cursor.hidden).to.be.true;
     });
 
     it('should handle cursor show sequence', () => {
       const result = cursor.interpret('[?25h remaining text');
       expect(result).to.equal(' remaining text');
+      expect(cursor.hidden).to.be.false;
     });
 
     it('should return original text when no ANSI sequence found', () => {
