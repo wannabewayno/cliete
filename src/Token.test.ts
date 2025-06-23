@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import Token from './Token.js';
 import Style from './Style.js';
+import Token from './Token.js';
 
 describe('Token', () => {
   describe('constructor', () => {

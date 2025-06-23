@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import Multiplier from './Multiplier.js';
 import BaseMultiplier from './BaseMultiplier.js';
+import Multiplier from './Multiplier.js';
 
 describe('Multiplier', () => {
   let actionSpy: sinon.SinonSpy;

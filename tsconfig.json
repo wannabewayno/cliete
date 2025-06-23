@@ -7,18 +7,18 @@
     "moduleResolution": "NodeNext",
     "moduleDetection": "force",
     "allowJs": true,
-    
+
     // Best practices
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
-    
+
     // Some stricter flags (disabled by default)
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noPropertyAccessFromIndexSignature": true,
     "forceConsistentCasingInFileNames": true,
-    
+
     // Lib Settings
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -29,6 +29,6 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-    "jsx": "react",
-  },
+    "jsx": "react"
+  }
 }

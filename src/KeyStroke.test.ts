@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type { Keyboard } from './Keyboard.js';
 import KeyStroke from './KeyStroke.js';
 import Multiplier from './Multiplier.js';
-import type { Keyboard } from './Keyboard.js';
 
 describe('KeyStroke', () => {
   let mockKeyboard: { press: sinon.SinonStub };

@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import { PassThrough } from 'node:stream';
+import { expect } from 'chai';
 import { Screen } from './Screen.js';
 
 describe('Screen', () => {

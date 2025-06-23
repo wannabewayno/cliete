@@ -1,10 +1,10 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: <explanation> */
+/** biome-ignore-all lint/suspicious/noExplicitAny: test code */
 import { expect } from 'chai';
 import sinon from 'sinon';
 import Cliete from './index.js';
 import { Keyboard } from './Keyboard.js';
-import { Screen } from './Screen.js';
 import KeyStroke from './KeyStroke.js';
+import { Screen } from './Screen.js';
 
 describe('Cliete', () => {
   let mockKeyboard: sinon.SinonStubbedInstance<Keyboard>;

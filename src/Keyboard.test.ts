@@ -1,7 +1,7 @@
-import { expect } from 'chai';
 import type { ChildProcess } from 'node:child_process';
-import { Keyboard } from './Keyboard.js';
+import { expect } from 'chai';
 import sinon from 'sinon';
+import { Keyboard } from './Keyboard.js';
 
 describe('Keyboard', () => {
   let mockProcess: ChildProcess;
