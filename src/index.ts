@@ -1,8 +1,8 @@
 import { spawn } from 'node:child_process';
 import { expect } from 'chai';
 import { Keyboard } from './Keyboard.js';
-import { Screen } from './Screen.js';
 import KeyStroke from './KeyStroke.js';
+import { Screen } from './Screen.js';
 
 /**
  * Main entry point for CLI testing with natural language interface.
