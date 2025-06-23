@@ -1,14 +1,11 @@
 import { EventEmitter } from 'node:events';
 import type Stream from 'node:stream';
 import { PassThrough } from 'node:stream';
-import Style from './Style.js';
 import Cursor from './Cursor.js';
+import KEY_MAP from './constants/KEY_MAP.js';
+import Style from './Style.js';
 import Token from './Token.js';
 import wrapText from './utils/wrapText.js';
-
-const KEY_MAP = {
-  escape: '\x1b',
-} as const;
 
 /**
  * Manages CLI process output by maintaining internal state for snapshot testing and recording.
