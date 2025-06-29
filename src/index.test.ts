@@ -73,37 +73,20 @@ This is some text...
   describe('wait method', () => {
     it('should wait for specified duration', async () => {
       const start = Date.now();
-      await cliete.wait(100);
+      await cliete.wait.for.one.hundred.milliseconds.and.printScreen();
       const elapsed = Date.now() - start;
 
       expect(elapsed).to.be.at.least(90);
     });
 
     it('should return this for chaining', async () => {
-      const result = await cliete.wait(10);
+      const result = cliete.wait.for.ten.milliseconds.and;
 
       expect(result).to.equal(cliete);
     });
   });
 
   describe('see method', () => {
-    it('should wait for commands and screen idle', async () => {
-      await cliete.see(
-        'Welcome to the CLItest output',
-        '',
-        'This is some text...',
-        '  This is some indented text',
-        '  - with',
-        '  - Bullet',
-        '  - Points',
-        '',
-        '',
-        '--------',
-      );
-
-      expect(mockScreen.waitForIdle).to.have.been.called;
-    });
-
     it('should call screen.render and assert exact match', async () => {
       mockScreen.render.returns('line1\nline2');
 
@@ -130,8 +113,6 @@ This is some text...
       mockScreen.render.returns('some text with substring here');
 
       await cliete.spot('substring');
-
-      expect(mockScreen.waitForIdle).to.have.been.called;
     });
 
     it('should assert substring presence', async () => {
@@ -159,7 +140,7 @@ This is some text...
     });
 
     it('should accept command and options parameters', () => {
-      expect(Cliete.openTerminal.length).to.equal(2);
+      expect(Cliete.openTerminal.length).to.equal(1);
     });
   });
 

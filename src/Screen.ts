@@ -1,8 +1,7 @@
 import { EventEmitter } from 'node:events';
-import type Stream from 'node:stream';
-import { PassThrough } from 'node:stream';
+import { PassThrough, Readable } from 'node:stream';
+import type { IPty } from 'node-pty';
 import Cursor from './Cursor.js';
-import KEY_MAP from './constants/KEY_MAP.js';
 import Style from './Style.js';
 import Token from './Token.js';
 import wrapText from './utils/wrapText.js';
@@ -28,7 +27,6 @@ export class Screen {
   protected combinedStream = new PassThrough();
   private width: number;
   private height: number;
-  private currentScreen = '';
 
   /**
    * Creates a new screen with specified dimensions.
@@ -60,7 +58,7 @@ export class Screen {
     });
 
     // finally update the screen
-    this.updateScreen();
+    this.emitter.emit('update');
   }
 
   /**
@@ -69,7 +67,8 @@ export class Screen {
    */
   private processLine(line: string) {
     // Go through the control commands for each line
-    const ctrlChars = line.split(KEY_MAP.escape);
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: we're interpeting control characters
+    const ctrlChars = line.split(/\x1b(\[[\d;]*\w)/);
 
     ctrlChars.forEach(ctrl => {
       ctrl = this.style.interpret(ctrl);
@@ -78,14 +77,34 @@ export class Screen {
       // Ensure a line exists for the current cursor position.
       this.buffer[this.cursor.y] ??= [];
 
+      if (!ctrl) return;
+
       // interpret the buffer commands
       switch (ctrl) {
-        case '[2K':
+        case '[2K': // Clear current line
           // @ts-ignore: covered above with `this.buffer[this.cursor.y] ??= [];`
           this.buffer[this.cursor.y].length = 0;
           break;
+        case '[J':
+        case '[0J': // Clear from cursor to end of screen
+          // Clear current line from cursor to end
+          // @ts-ignore: covered above with `this.buffer[this.cursor.y] ??= [];`
+          this.buffer[this.cursor.y] = this.buffer[this.cursor.y].slice(0, this.cursor.x);
+          // Clear all lines after current
+          this.buffer = this.buffer.slice(0, this.cursor.y + 1);
+          break;
+        case '[1J': // Clear from cursor to beginning of screen
+          // Clear all lines before current
+          for (let i = 0; i < this.cursor.y; i++) this.buffer[i] = [];
+
+          // Clear current line from beginning to cursor
+          // @ts-ignore: covered above with `this.buffer[this.cursor.y] ??= [];`
+          this.buffer[this.cursor.y] = this.buffer[this.cursor.y].slice(this.cursor.x);
+          break;
+        case '[2J': // Clear entire screen
+          this.buffer = [[]];
+          break;
         default: {
-          if (!ctrl) return;
           const token = new Token(ctrl, this.style.clone());
           // @ts-ignore: covered above with `this.buffer[this.cursor.y] ??= [];`
           this.buffer[this.cursor.y].push(token);
@@ -95,23 +114,14 @@ export class Screen {
   }
 
   /**
-   * Updates the current screen representation and emits update event.
-   */
-  private updateScreen() {
-    const visibleLines = this.buffer.slice(-this.height).map(tokens => {
-      const line = tokens.map(token => token.raw()).join('');
-      return wrapText(line, this.width);
-    });
-    this.currentScreen = visibleLines.join('\n');
-    this.emitter.emit('update');
-  }
-
-  /**
    * Pipes multiple readable streams (stdout/stderr) into this screen.
    * @param streams - Readable streams to monitor
    */
-  pipe(...streams: Stream.Readable[]) {
-    streams.forEach(stream => stream.pipe(this.combinedStream));
+  pipe(...streams: (IPty | Readable)[]) {
+    streams.forEach(stream => {
+      if (stream instanceof Readable) return stream.pipe(this.combinedStream);
+      stream.onData(data => this.combinedStream.write(data));
+    });
   }
 
   /**
@@ -126,8 +136,12 @@ export class Screen {
    * Renders the current screen content as a string.
    * @returns Current screen content with proper line wrapping
    */
-  render(): string {
-    return this.currentScreen;
+  render(color = false): string {
+    const visibleLines = this.buffer.slice(-this.height).map(tokens => {
+      const line = tokens.map(token => token[color ? 'styled' : 'raw']()).join('');
+      return wrapText(line, this.width);
+    });
+    return visibleLines.join('\n');
   }
 
   /**

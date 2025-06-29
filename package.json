@@ -87,6 +87,7 @@
     "e2e"
   ],
   "dependencies": {
-    "chai": "^5.2.0"
+    "chai": "^5.2.0",
+    "node-pty": "^1.0.0"
   }
 }

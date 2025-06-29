@@ -33,14 +33,6 @@ export default class KeyStroke<T> {
   }
 
   /**
-   * Returns fallback object for immediate method chaining.
-   * @returns Fallback object for continued operations
-   */
-  get and() {
-    return this.fallback;
-  }
-
-  /**
    * Creates multiplier for Enter key presses.
    * @returns Multiplier instance for natural language repetition
    */

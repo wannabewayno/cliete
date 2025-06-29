@@ -214,7 +214,6 @@ export default class Style {
       if (!color) this._color = undefined;
       else this._color = typeof color === 'number' ? `38;5;${color}` : AnsiColors[color];
     } else if (args.length === 3) this._color = `38;2;${args.join(';')}`;
-    else throw new Error('Invalid color arguments');
     return this;
   }
 
@@ -230,7 +229,6 @@ export default class Style {
       if (!bgColor) this._bgColor = undefined;
       else this._bgColor = typeof bgColor === 'number' ? `48;5;${bgColor}` : AnsiBgColors[bgColor];
     } else if (args.length === 3) this._bgColor = `48;2;${args.join(';')}`;
-    else throw new Error('Invalid color arguments');
     return this;
   }
 

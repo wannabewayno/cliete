@@ -1,0 +1,71 @@
+import { expect } from 'chai';
+import type { Screen } from './Screen.js';
+import { sleep, timeout } from './utils/time.js';
+
+export default class AsyncAssertions {
+  constructor(
+    private readonly screen: Screen,
+    private readonly opts: { preCondition?: Promise<unknown>; until?: number } = {},
+  ) {}
+
+  /**
+   * Asserts that the current screen exactly matches the expected lines.
+   * @param expected - Lines that should exactly match the screen output
+   * @example
+   * await I.see(
+   *   '1234567 Fix: bugs',
+   *   '7654321 count: chickens'
+   * );
+   * await I.see(
+   *  '$ git status',
+   *  'On branch main'
+   * );
+   */
+  async see(...expected: string[]) {
+    const assertion = () => {
+      const actual = this.screen.render();
+      expect(actual).to.equal(expected.join('\n'));
+    };
+
+    return this.assert(assertion);
+  }
+
+  /**
+   * Asserts that the current screen contains the specified substrings.
+   * @param expected - Substrings that should be present in the screen output
+   * @example
+   * await I.spot('Fix: bugs'); // Find substring anywhere on screen
+   */
+  async spot(...expected: string[]) {
+    const assertion = () => {
+      const actual = this.screen.render();
+      expect(actual).to.include(expected.join('\n'));
+    };
+
+    return this.assert(assertion);
+  }
+
+  private async assert(assertion: () => void) {
+    if (this.opts.preCondition) await this.opts.preCondition;
+    if (this.opts.until) return this.loopAssertion(assertion, 'spot', this.opts.until);
+    assertion();
+  }
+
+  /**
+   * Loops the Assertion until the timeout
+   */
+  private async loopAssertion(assertion: () => void, name: string, timeoutMs: number) {
+    const loop = async () => {
+      while (true) {
+        try {
+          assertion();
+          return;
+        } catch {
+          await sleep(25);
+        }
+      }
+    };
+
+    return timeout(loop(), name, timeoutMs);
+  }
+}

@@ -26,14 +26,6 @@ describe('KeyStroke', () => {
     });
   });
 
-  describe('and getter', () => {
-    it('should return fallback object', () => {
-      const result = keyStroke.and;
-
-      expect(result).to.equal(fallbackObject);
-    });
-  });
-
   describe('key multiplier getters', () => {
     it('should return Multiplier for enter key', () => {
       const result = keyStroke.enter;

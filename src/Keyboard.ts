@@ -1,20 +1,15 @@
-import type { ChildProcess } from 'node:child_process';
+import type { IPty } from 'node-pty';
 import KEY_MAP from './constants/KEY_MAP.js';
 
 export class Keyboard {
-  private process: ChildProcess;
+  private pty: IPty;
 
-  constructor(process: ChildProcess) {
-    this.process = process;
+  constructor(pty: IPty) {
+    this.pty = pty;
   }
 
   async type(text: string): Promise<void> {
-    if (!this.process.stdin) throw new Error('Process stdin is closed');
-
-    return new Promise<void>(resolve => {
-      // biome-ignore lint/style/noNonNullAssertion: Guard clause above.
-      this.process.stdin!.write(text, 'utf8', () => resolve());
-    });
+    this.pty.write(text);
   }
 
   press(key: keyof typeof KEY_MAP) {
