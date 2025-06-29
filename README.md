@@ -61,13 +61,6 @@ I.type('git status');
 I.type('hello world').and.press.enter.once;
 ```
 
-### `I.wait(ms: number)`
-Waits for a specified duration.
-
-```typescript
-await I.wait(1000); // Wait 1 second
-```
-
 ### `I.see(...expected: string[])`
 Asserts that the current screen exactly matches the expected lines.
 
@@ -88,39 +81,57 @@ await I.spot('Fix: bugs');
 ## Real World Example
 
 ```typescript
-describe('CLI E2E Tests', () => {
-  let I: Cliete;
+import { execSync } from 'node:child_process';
+import { expect } from 'chai';
+import Cliete from 'cliete';
 
-  before(async () => {
-    I = await cliete.openTerminal('commitional', {
-      width: 100,
-      height: 50,
+describe('Cliete integration tests', () => {
+  describe('Node', () => {
+    let nodeVersion: string;
+    before(() => {
+      nodeVersion = execSync('node --version').toString().trim();
     });
-  });
 
-  it('should display typed input', async () => {
-    await I.see(
-      "? Select the type of change that you're committing:",
-      '❯ feat',
-      '  fix',
-      '  chore',
-      '  docs',
-      '  style',
-      '  refactor',
-      '  perf',
-      '(Use arrow keys to reveal more choices)',
-    );
+    it('Should spawn an interactive node shell and run basic commands', async () => {
+      const I = await Cliete.openTerminal('node', {
+        width: 40,
+        height: 30,
+      });
 
-    await I.press.down.twice.and.see(
-      "? Select the type of change that you're committing:",
-      '  feat',
-      '  fix',
-      '❯ chore',
-      '  docs',
-      '  style',
-      '  refactor',
-      '  perf',
-    );
+      // Assert that we see the initial REPL message with the current node version
+      await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+      // Type in 2 + 2 and see the preview shown below
+      await I.type('2 + 2').and.wait.until.I.see(
+        `Welcome to Node.js ${nodeVersion}.`,
+        'Type ".help" for more information.',
+        '> 2 + 2',
+        '4',
+      );
+
+      // Hit enter and see the output
+      await I.press.enter.and.wait.until.I.see(
+        `Welcome to Node.js ${nodeVersion}.`,
+        'Type ".help" for more information.',
+        '> 2 + 2',
+        '4',
+        '>',
+      );
+
+      const before = performance.now();
+      await I.wait.for.ninety.nine.milliseconds.and.see(
+        `Welcome to Node.js ${nodeVersion}.`,
+        'Type ".help" for more information.',
+        '> 2 + 2',
+        '4',
+        '>',
+      );
+      const after = performance.now();
+      expect(after - before).to.be.at.least(99);
+
+      // exit the session
+      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit();
+    });
   });
 });
 ```
