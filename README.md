@@ -16,6 +16,38 @@
 
 Command Line Interface End-To-End test framework with a natural language interface for writing expressive and maintainable tests.
 
+## Natural Language Design
+
+Cliete's API reads like natural English, making tests self-documenting:
+
+```typescript
+// Instead of cryptic timing functions:
+setTimeout(() => assert(condition), 2000);
+
+// Write expressive, readable code:
+await I.wait.for.two.seconds.and.see('Expected output');
+await I.wait.until.I.see('Dynamic content appears');
+```
+
+## Key Features
+
+### 🔄 Smart Waiting Strategies
+- **`wait.for`**: Explicit delays for known timing requirements
+- **`wait.until`**: Retry logic for dynamic content and async operations
+- **Natural language**: `wait.for.two.seconds` vs `setTimeout(2000)`
+
+### 📝 Self-Documenting Tests
+```typescript
+// Clear intent and readable flow
+await I.type('npm start').and.wait.until.I.spot('Server running')
+await I.wait.for.one.second.and.see('Ready to accept connections');
+```
+
+### 🎯 Precise Terminal Control
+- Real TTY environment using node-pty
+- ANSI escape sequence handling
+- Accurate screen state capture
+
 ## Installation
 
 ```bash
@@ -33,6 +65,66 @@ I.press.up.three.times.and.press.enter.once.and.see(
   '1234567 Fix: bugs',
   '7654321 count: chickens'
 );
+```
+
+## Real World Example
+
+```typescript
+import { execSync } from 'node:child_process';
+import { expect } from 'chai';
+import Cliete from 'cliete';
+
+describe('Cliete integration tests', () => {
+  describe('Node', () => {
+    let nodeVersion: string;
+    before(() => {
+      nodeVersion = execSync('node --version').toString().trim();
+    });
+
+    it('Should spawn an interactive node shell and run basic commands', async () => {
+      const I = await Cliete.openTerminal('node', {
+        width: 40,
+        height: 30,
+      });
+
+      // Wait for REPL to start (retry until success)
+      await I.wait.until.I.see(
+        `Welcome to Node.js ${nodeVersion}.`,
+        'Type ".help" for more information.',
+        '>'
+      );
+
+      // Type command and wait for preview
+      await I.type('2 + 2').and.wait.until.I.see(
+        `Welcome to Node.js ${nodeVersion}.`,
+        'Type ".help" for more information.',
+        '> 2 + 2',
+        '4'
+      );
+
+      // Execute command and wait for result
+      await I.press.enter.and.wait.until.I.see(
+        `Welcome to Node.js ${nodeVersion}.`,
+        'Type ".help" for more information.',
+        '> 2 + 2',
+        '4',
+        '>'
+      );
+
+      // Demonstrate explicit timing
+      await I.wait.for.one.hundred.milliseconds.and.see(
+        `Welcome to Node.js ${nodeVersion}.`,
+        'Type ".help" for more information.',
+        '> 2 + 2',
+        '4',
+        '>'
+      );
+
+      // Clean exit
+      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit();
+    });
+  });
+});
 ```
 
 ## API Reference
@@ -78,62 +170,30 @@ Asserts that the current screen contains the specified substrings.
 await I.spot('Fix: bugs');
 ```
 
-## Real World Example
+### `I.wait.for` - Explicit Waiting
+Waits for a specific duration before continuing. Makes tests more readable by expressing timing intentions clearly.
 
 ```typescript
-import { execSync } from 'node:child_process';
-import { expect } from 'chai';
-import Cliete from 'cliete';
+// Wait for specific durations
+await I.wait.for.two.seconds.and.see('Loading complete');
+await I.wait.for.five.hundred.milliseconds.and.press.enter;
 
-describe('Cliete integration tests', () => {
-  describe('Node', () => {
-    let nodeVersion: string;
-    before(() => {
-      nodeVersion = execSync('node --version').toString().trim();
-    });
+// Wait for process conditions
+await I.wait.for.the.process.to.exit();
+const stableScreen = await I.wait.for.the.screen.to.settle().and.printScreen('color');
+// screen is in color!
+```
 
-    it('Should spawn an interactive node shell and run basic commands', async () => {
-      const I = await Cliete.openTerminal('node', {
-        width: 40,
-        height: 30,
-      });
+### `I.wait.until` - Retry Until Success
+Repeats assertions until they succeed or timeout. Perfect for waiting for dynamic content or slow operations.
 
-      // Assert that we see the initial REPL message with the current node version
-      await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+```typescript
+// Retry assertions until they pass
+await I.wait.until.I.see('Build completed successfully');
+await I.wait.until.I.spot('Server started on port 3000');
 
-      // Type in 2 + 2 and see the preview shown below
-      await I.type('2 + 2').and.wait.until.I.see(
-        `Welcome to Node.js ${nodeVersion}.`,
-        'Type ".help" for more information.',
-        '> 2 + 2',
-        '4',
-      );
-
-      // Hit enter and see the output
-      await I.press.enter.and.wait.until.I.see(
-        `Welcome to Node.js ${nodeVersion}.`,
-        'Type ".help" for more information.',
-        '> 2 + 2',
-        '4',
-        '>',
-      );
-
-      const before = performance.now();
-      await I.wait.for.ninety.nine.milliseconds.and.see(
-        `Welcome to Node.js ${nodeVersion}.`,
-        'Type ".help" for more information.',
-        '> 2 + 2',
-        '4',
-        '>',
-      );
-      const after = performance.now();
-      expect(after - before).to.be.at.least(99);
-
-      // exit the session
-      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit();
-    });
-  });
-});
+// Wait for process to exit with timeout
+await I.wait.until.the.process.exits(5000);
 ```
 
 ## Contributing
