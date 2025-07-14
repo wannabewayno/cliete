@@ -209,11 +209,13 @@ export default class Cliete {
    */
   static async openTerminal(
     cmd: string,
-    options: { width?: number; height?: number; env?: Record<string, string>; cwd?: string } = {},
+    options: { width?: number; height?: number; env?: Record<string, string | undefined>; cwd?: string } = {},
   ) {
     const { width = 40, height = 30, cwd = process.cwd(), env = process.env } = options;
-    const terminal = spawn(cmd, [], {
-      name: 'xterm-color',
+
+    const [shell, ...args] = cmd.split(' ');
+    const terminal = spawn(shell ?? '', args, {
+      name: 'cliete',
       cols: width,
       rows: height,
       cwd,
