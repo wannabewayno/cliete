@@ -2,6 +2,15 @@ import { expect } from 'chai';
 import type { Screen } from './Screen.js';
 import { sleep, timeout } from './utils/time.js';
 
+const errMessage = (fn: () => unknown): string => {
+  try {
+    fn();
+    return '';
+  } catch (err: unknown) {
+    return (err as Error).message;
+  }
+};
+
 export default class AsyncAssertions {
   constructor(
     private readonly screen: Screen,
@@ -27,7 +36,7 @@ export default class AsyncAssertions {
       expect(actual).to.equal(expected.join('\n'));
     };
 
-    return this.assert(assertion);
+    return this.assert(assertion, 'see');
   }
 
   /**
@@ -42,12 +51,15 @@ export default class AsyncAssertions {
       expect(actual).to.include(expected.join('\n'));
     };
 
-    return this.assert(assertion);
+    return this.assert(assertion, 'spot');
   }
 
-  private async assert(assertion: () => void) {
+  private async assert(assertion: () => void, name: string) {
+    // If there's a pre-condition, wait for this to resolve first.
     if (this.opts.preCondition) await this.opts.preCondition;
-    if (this.opts.until) return this.loopAssertion(assertion, 'spot', this.opts.until);
+
+    // if we're waiting until a condition is met, loop the assertion until it either passes or timesout.
+    if (this.opts.until) return this.loopAssertion(assertion, name, this.opts.until);
     assertion();
   }
 
@@ -66,6 +78,6 @@ export default class AsyncAssertions {
       }
     };
 
-    return timeout(loop(), name, timeoutMs);
+    return timeout(loop(), () => `to ${name}\n${errMessage(assertion)}`, timeoutMs);
   }
 }

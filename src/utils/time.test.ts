@@ -113,10 +113,10 @@ describe('timeout', () => {
     const promise = new Promise(resolve => setTimeout(resolve, 200));
 
     try {
-      await timeout(promise, 'test operation', 50);
+      await timeout(promise, 'for test operation to complete', 50);
       expect.fail('Should have thrown timeout error');
     } catch (error) {
-      expect((error as Error).message).to.include('Timeout of 50ms reached waiting for test operation');
+      expect((error as Error).message).to.include('Timeout of 50ms reached waiting for test operation to complete');
     }
   });
 

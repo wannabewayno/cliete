@@ -153,11 +153,12 @@ export const timeWithSingular = <const T>(done: (milliseconds: number) => T) => 
 
 export const sleep = (timeout: number) => new Promise<void>(resolve => setTimeout(() => resolve(), timeout));
 
-export const timeout = <T>(promise: Promise<T>, name: string, timeout: number | null = 6000) => {
+export const timeout = <T>(promise: Promise<T>, errMsg: string | (() => string), timeout: number | null = 6000) => {
   const timeoutError = new Promise<Error>(resolve => {
     if (timeout !== null && timeout > 0) {
       setTimeout(() => {
-        resolve(new Error(`Timeout of ${timeout}ms reached waiting for ${name}`));
+        const message = errMsg instanceof Function ? errMsg() : errMsg;
+        resolve(new Error(`Timeout of ${timeout}ms reached waiting ${message}`));
       }, timeout);
     }
   });
