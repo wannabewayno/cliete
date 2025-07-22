@@ -18,6 +18,7 @@ interface OpenTerminalOpts {
   height?: number;
   env?: Record<string, string | undefined>;
   cwd?: string;
+  timeout?: number | null;
 }
 
 /**
@@ -208,7 +209,7 @@ export default class Cliete {
 
   /**
    * Sets default options for openTerminal method.
-   * @param type - The option type to set ('width', 'height', 'env', or 'cwd')
+   * @param type - The option type to set ('width', 'height', 'env', 'cwd', or 'timeout')
    * @param value - The default value to use
    * @example
    * Cliete.setDefault('width', 120);
@@ -239,7 +240,7 @@ export default class Cliete {
    */
   static async openTerminal(cmd: string, options: OpenTerminalOpts = {}) {
     const mergedOptions = { ...Cliete.defaultOpts, ...options };
-    const { width = 40, height = 30, cwd = process.cwd(), env = process.env } = mergedOptions;
+    const { width = 40, height = 30, cwd = process.cwd(), env = process.env, timeout } = mergedOptions;
 
     const [shell, ...args] = cmd.split(' ');
     const terminal = spawn(shell ?? '', args, {
@@ -263,7 +264,7 @@ export default class Cliete {
     });
 
     // Wait for the first text to render on the screen.
-    await screen.waitForUpdate();
+    if (timeout !== null) await screen.waitForUpdate(timeout);
 
     return cliete;
   }

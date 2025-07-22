@@ -130,7 +130,7 @@ describe('Cliete integration tests', () => {
 
 ## API Reference
 
-### `Cliete.setDefault(type: string, value: any)`
+### `Cliete.setDefault(type: defaultOptionKey, value: defaultOptionType)`
 Sets default options for the `openTerminal` method to avoid repetitive configuration.
 
 ```typescript
@@ -138,10 +138,13 @@ Sets default options for the `openTerminal` method to avoid repetitive configura
 Cliete.setDefault('width', 120);
 Cliete.setDefault('height', 40);
 Cliete.setDefault('cwd', '/my/project');
+Cliete.setDefault('timeout', 2000); // Custom initial wait timeout
+Cliete.setDefault('timeout', 0); // Disable initial wait (wait indefinitely)
+Cliete.setDefault('timeout', null); // Skip initial wait entirely
 
 // Now all terminals use these defaults unless overridden
-const I1 = await Cliete.openTerminal('git log'); // Uses width: 120, height: 40, cwd: /my/project
-const I2 = await Cliete.openTerminal('npm test', { width: 80 }); // Uses width: 80, height: 40, cwd: /my/project
+const I1 = await Cliete.openTerminal('git log'); // Uses all defaults
+const I2 = await Cliete.openTerminal('npm test', { width: 80 }); // Overrides width only
 ```
 
 ### `Cliete.clearDefaults()`
@@ -159,11 +162,14 @@ Cliete.clearDefaults();
 const I = await Cliete.openTerminal('git log');
 ```
 
-### `Cliete.openTerminal(cmd: string, options?: { width?: number; height?: number; env?: Record<string, string>; cwd?: string })`
+### `Cliete.openTerminal(cmd: string, options?: { width?: number; height?: number; env?: Record<string, string>; cwd?: string; timeout?: number | null })`
 Opens a new terminal session for CLI testing. Uses defaults set via `setDefault()` if options are not provided, otherwise falls back to built-in defaults (width: 40, height: 30, cwd: current working directory, env: current shell).
 
 ```typescript
 const I = await Cliete.openTerminal('git log', { width: 80, height: 24 });
+const I2 = await Cliete.openTerminal('npm start', { timeout: 10000 }); // Wait up to 10s for initial output
+const I4 = await Cliete.openTerminal('echo test', { timeout: 0 }); // Wait indefinitely for initial output
+const I3 = await Cliete.openTerminal('echo test', { timeout: null }); // Skip initial wait
 ```
 
 ### `I.press`

@@ -173,6 +173,16 @@ This is some text...
       Cliete.setDefault('env', testEnv);
       expect((Cliete as any).defaultOpts.env).to.equal(testEnv);
     });
+
+    it('should set timeout default', () => {
+      Cliete.setDefault('timeout', 1000);
+      expect((Cliete as any).defaultOpts.timeout).to.equal(1000);
+    });
+
+    it('should set timeout default to null', () => {
+      Cliete.setDefault('timeout', null);
+      expect((Cliete as any).defaultOpts.timeout).to.be.null;
+    });
   });
 
   describe('Cliete.clearDefaults()', () => {
@@ -188,6 +198,7 @@ This is some text...
       Cliete.setDefault('width', 120);
       Cliete.setDefault('height', 50);
       Cliete.setDefault('cwd', '/tmp');
+      Cliete.setDefault('timeout', 1000);
 
       Cliete.clearDefaults();
 

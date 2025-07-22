@@ -14,9 +14,6 @@ describe('Cliete integration tests', () => {
 
       const I = await Cliete.openTerminal('echo "test"');
       await I.wait.for.the.process.to.exit();
-
-      // Test passes if no errors thrown during terminal creation
-      expect(true).to.be.true;
     });
 
     it('should override defaults with provided options', async () => {
@@ -25,9 +22,6 @@ describe('Cliete integration tests', () => {
 
       const I = await Cliete.openTerminal('echo "test"', { width: 80, height: 25 });
       await I.wait.for.the.process.to.exit();
-
-      // Test passes if no errors thrown during terminal creation
-      expect(true).to.be.true;
     });
 
     it('should use built-in defaults after clearDefaults', async () => {
@@ -38,9 +32,13 @@ describe('Cliete integration tests', () => {
 
       const I = await Cliete.openTerminal('echo "test"');
       await I.wait.for.the.process.to.exit();
+    });
 
-      // Test passes if no errors thrown during terminal creation with built-in defaults
-      expect(true).to.be.true;
+    it('should skip waitForUpdate when timeout is null', async () => {
+      Cliete.setDefault('timeout', null);
+
+      const I = await Cliete.openTerminal('echo');
+      await I.wait.for.the.process.to.exit();
     });
   });
 
