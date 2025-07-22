@@ -146,8 +146,7 @@ This is some text...
 
   describe('Cliete.setDefault()', () => {
     afterEach(() => {
-      // Reset defaults after each test
-      (Cliete as any).defaultOpts = {};
+      Cliete.clearDefaults();
     });
 
     it('should be a static method', () => {
@@ -173,6 +172,35 @@ This is some text...
       const testEnv = { TEST: 'value' };
       Cliete.setDefault('env', testEnv);
       expect((Cliete as any).defaultOpts.env).to.equal(testEnv);
+    });
+  });
+
+  describe('Cliete.clearDefaults()', () => {
+    afterEach(() => {
+      Cliete.clearDefaults();
+    });
+
+    it('should be a static method', () => {
+      expect(Cliete.clearDefaults).to.be.a('function');
+    });
+
+    it('should clear all defaults', () => {
+      Cliete.setDefault('width', 120);
+      Cliete.setDefault('height', 50);
+      Cliete.setDefault('cwd', '/tmp');
+
+      Cliete.clearDefaults();
+
+      expect((Cliete as any).defaultOpts).to.deep.equal({});
+    });
+
+    it('should reset to empty object after setting defaults', () => {
+      Cliete.setDefault('width', 100);
+      expect((Cliete as any).defaultOpts.width).to.equal(100);
+
+      Cliete.clearDefaults();
+      expect((Cliete as any).defaultOpts.width).to.be.undefined;
+      expect((Cliete as any).defaultOpts).to.deep.equal({});
     });
   });
 

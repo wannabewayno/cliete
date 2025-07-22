@@ -213,6 +213,15 @@ export default class Cliete {
   }
 
   /**
+   * Clears all default options, resetting them to empty.
+   * @example
+   * Cliete.clearDefaults();
+   */
+  static clearDefaults() {
+    Cliete.defaultOpts = {};
+  }
+
+  /**
    * Opens a terminal session for CLI testing.
    * Uses defaults set via setDefault() if options are not provided, otherwise falls back to built-in defaults.
    * @param cmd - Command to execute in the terminal

@@ -144,6 +144,21 @@ const I1 = await Cliete.openTerminal('git log'); // Uses width: 120, height: 40,
 const I2 = await Cliete.openTerminal('npm test', { width: 80 }); // Uses width: 80, height: 40, cwd: /my/project
 ```
 
+### `Cliete.clearDefaults()`
+Clears all default options, resetting them to empty.
+
+```typescript
+// Set some defaults
+Cliete.setDefault('width', 120);
+Cliete.setDefault('height', 40);
+
+// Clear all defaults
+Cliete.clearDefaults();
+
+// Now uses built-in defaults (width: 40, height: 30)
+const I = await Cliete.openTerminal('git log');
+```
+
 ### `Cliete.openTerminal(cmd: string, options?: { width?: number; height?: number; env?: Record<string, string>; cwd?: string })`
 Opens a new terminal session for CLI testing. Uses defaults set via `setDefault()` if options are not provided, otherwise falls back to built-in defaults (width: 40, height: 30, cwd: current working directory, env: current shell).
 

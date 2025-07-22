@@ -5,8 +5,7 @@ import Cliete from './index.js';
 describe('Cliete integration tests', () => {
   describe('Default Options', () => {
     afterEach(() => {
-      // Reset defaults after each test
-      (Cliete as any).defaultOpts = {};
+      Cliete.clearDefaults();
     });
 
     it('should use default dimensions when set', async () => {
@@ -30,6 +29,19 @@ describe('Cliete integration tests', () => {
       // Test passes if no errors thrown during terminal creation
       expect(true).to.be.true;
     });
+
+    it('should use built-in defaults after clearDefaults', async () => {
+      Cliete.setDefault('width', 100);
+      Cliete.setDefault('height', 50);
+
+      Cliete.clearDefaults();
+
+      const I = await Cliete.openTerminal('echo "test"');
+      await I.wait.for.the.process.to.exit();
+
+      // Test passes if no errors thrown during terminal creation with built-in defaults
+      expect(true).to.be.true;
+    });
   });
 
   describe('Node', () => {
@@ -39,9 +51,7 @@ describe('Cliete integration tests', () => {
     });
 
     afterEach(() => {
-      // Reset defaults
-      // biome-ignore lint/suspicious/noExplicitAny: required as defaultOpts is private.
-      (Cliete as any).defaultOpts = {};
+      Cliete.clearDefaults();
     });
 
     it('Should spawn an interactive node shell and run basic commands', async () => {
