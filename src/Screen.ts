@@ -146,15 +146,18 @@ export class Screen {
 
   /**
    * Waits for the next screen update event.
-   * @param timeout - Maximum wait time in milliseconds (default: 5000)
+   * @param {number} timeout - Maximum wait time in milliseconds (default: 5000), 0 disables the timeout
    * @returns Promise that resolves on next update
    * @throws Error if timeout is reached
    */
   waitForUpdate(timeout = 5000): Promise<void> {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        reject(new Error('Screen update timeout'));
-      }, timeout);
+      const timer =
+        timeout > 0
+          ? setTimeout(() => {
+              reject(new Error('Screen update timeout'));
+            }, timeout)
+          : undefined;
 
       this.emitter.once('update', () => {
         clearTimeout(timer);

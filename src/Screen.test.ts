@@ -137,6 +137,15 @@ describe('Screen', () => {
     it('should timeout if no update occurs', async () => {
       await expect(screen.waitForUpdate(100)).to.be.rejectedWith('Screen update timeout');
     });
+
+    it('should disable timeout when 0 is passed', async () => {
+      const stream = new PassThrough();
+      screen.pipe(stream);
+
+      setTimeout(() => stream.write('test'), 200);
+
+      await expect(screen.waitForUpdate(0)).to.be.fulfilled;
+    });
   });
 
   describe('waitForIdle', () => {
