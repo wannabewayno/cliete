@@ -50,6 +50,7 @@
     "test": "mocha test",
     "test:coverage": "c8 --all --clean mocha test",
     "test:parallel": "mocha test --parallel",
+    "test:e2e": "mocha test --config .mocharc.e2e.json",
     "build": "tshy"
   },
   "tshy": {
