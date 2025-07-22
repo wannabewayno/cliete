@@ -29,6 +29,8 @@ interface IProcess {
  * ```
  */
 export default class Cliete {
+  private static defaultOpts: { width?: number; height?: number; env?: Record<string, string | undefined>; cwd?: string } =
+    {};
   private processExit: Promise<void> | null = null;
   private promises: Set<Promise<unknown>> = new Set();
   /**
@@ -199,7 +201,20 @@ export default class Cliete {
   }
 
   /**
+   * Sets default options for openTerminal method.
+   * @param type - The option type to set ('width', 'height', 'env', or 'cwd')
+   * @param value - The default value to use
+   * @example
+   * Cliete.setDefault('width', 120);
+   * Cliete.setDefault('height', 40);
+   */
+  static setDefault<K extends keyof typeof Cliete.defaultOpts>(type: K, value: (typeof Cliete.defaultOpts)[K]) {
+    Cliete.defaultOpts[type] = value;
+  }
+
+  /**
    * Opens a terminal session for CLI testing.
+   * Uses defaults set via setDefault() if options are not provided, otherwise falls back to built-in defaults.
    * @param cmd - Command to execute in the terminal
    * @param options - Terminal dimensions configuration
    * @returns Promise resolving to Cliete instance ready for testing
@@ -211,7 +226,8 @@ export default class Cliete {
     cmd: string,
     options: { width?: number; height?: number; env?: Record<string, string | undefined>; cwd?: string } = {},
   ) {
-    const { width = 40, height = 30, cwd = process.cwd(), env = process.env } = options;
+    const mergedOptions = { ...Cliete.defaultOpts, ...options };
+    const { width = 40, height = 30, cwd = process.cwd(), env = process.env } = mergedOptions;
 
     const [shell, ...args] = cmd.split(' ');
     const terminal = spawn(shell ?? '', args, {

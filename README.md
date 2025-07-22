@@ -79,13 +79,14 @@ describe('Cliete integration tests', () => {
     let nodeVersion: string;
     before(() => {
       nodeVersion = execSync('node --version').toString().trim();
+      // Set defaults to avoid repetition across tests
+      Cliete.setDefault('width', 40);
+      Cliete.setDefault('height', 30);
     });
 
     it('Should spawn an interactive node shell and run basic commands', async () => {
-      const I = await Cliete.openTerminal('node', {
-        width: 40,
-        height: 30,
-      });
+      // Uses defaults set above
+      const I = await Cliete.openTerminal('node');
 
       // Wait for REPL to start (retry until success)
       await I.wait.until.I.see(
@@ -129,8 +130,22 @@ describe('Cliete integration tests', () => {
 
 ## API Reference
 
-### `Cliete.openTerminal(cmd: string, options: { width: number; height: number })`
-Opens a new terminal session for CLI testing.
+### `Cliete.setDefault(type: string, value: any)`
+Sets default options for the `openTerminal` method to avoid repetitive configuration.
+
+```typescript
+// Set defaults once
+Cliete.setDefault('width', 120);
+Cliete.setDefault('height', 40);
+Cliete.setDefault('cwd', '/my/project');
+
+// Now all terminals use these defaults unless overridden
+const I1 = await Cliete.openTerminal('git log'); // Uses width: 120, height: 40, cwd: /my/project
+const I2 = await Cliete.openTerminal('npm test', { width: 80 }); // Uses width: 80, height: 40, cwd: /my/project
+```
+
+### `Cliete.openTerminal(cmd: string, options?: { width?: number; height?: number; env?: Record<string, string>; cwd?: string })`
+Opens a new terminal session for CLI testing. Uses defaults set via `setDefault()` if options are not provided, otherwise falls back to built-in defaults (width: 40, height: 30, cwd: current working directory, env: current shell).
 
 ```typescript
 const I = await Cliete.openTerminal('git log', { width: 80, height: 24 });

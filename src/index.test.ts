@@ -144,6 +144,38 @@ This is some text...
     });
   });
 
+  describe('Cliete.setDefault()', () => {
+    afterEach(() => {
+      // Reset defaults after each test
+      (Cliete as any).defaultOpts = {};
+    });
+
+    it('should be a static method', () => {
+      expect(Cliete.setDefault).to.be.a('function');
+    });
+
+    it('should set width default', () => {
+      Cliete.setDefault('width', 120);
+      expect((Cliete as any).defaultOpts.width).to.equal(120);
+    });
+
+    it('should set height default', () => {
+      Cliete.setDefault('height', 50);
+      expect((Cliete as any).defaultOpts.height).to.equal(50);
+    });
+
+    it('should set cwd default', () => {
+      Cliete.setDefault('cwd', '/tmp');
+      expect((Cliete as any).defaultOpts.cwd).to.equal('/tmp');
+    });
+
+    it('should set env default', () => {
+      const testEnv = { TEST: 'value' };
+      Cliete.setDefault('env', testEnv);
+      expect((Cliete as any).defaultOpts.env).to.equal(testEnv);
+    });
+  });
+
   describe('integration behavior', () => {
     it('should support method chaining', () => {
       const result = cliete.type('hello').and;
