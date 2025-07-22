@@ -13,6 +13,13 @@ interface IProcess {
   pid: string;
 }
 
+interface OpenTerminalOpts {
+  width?: number;
+  height?: number;
+  env?: Record<string, string | undefined>;
+  cwd?: string;
+}
+
 /**
  * Main entry point for CLI testing with natural language interface.
  *
@@ -29,8 +36,7 @@ interface IProcess {
  * ```
  */
 export default class Cliete {
-  private static defaultOpts: { width?: number; height?: number; env?: Record<string, string | undefined>; cwd?: string } =
-    {};
+  private static defaultOpts: OpenTerminalOpts = {};
   private processExit: Promise<void> | null = null;
   private promises: Set<Promise<unknown>> = new Set();
   /**
@@ -208,7 +214,7 @@ export default class Cliete {
    * Cliete.setDefault('width', 120);
    * Cliete.setDefault('height', 40);
    */
-  static setDefault<K extends keyof typeof Cliete.defaultOpts>(type: K, value: (typeof Cliete.defaultOpts)[K]) {
+  static setDefault<K extends keyof OpenTerminalOpts>(type: K, value: OpenTerminalOpts[K]) {
     Cliete.defaultOpts[type] = value;
   }
 
@@ -231,10 +237,7 @@ export default class Cliete {
    * const I = await Cliete.openTerminal('git log', { width: 80, height: 24 });
    * const I = await Cliete.openTerminal('npm test', { width: 120, height: 30 });
    */
-  static async openTerminal(
-    cmd: string,
-    options: { width?: number; height?: number; env?: Record<string, string | undefined>; cwd?: string } = {},
-  ) {
+  static async openTerminal(cmd: string, options: OpenTerminalOpts = {}) {
     const mergedOptions = { ...Cliete.defaultOpts, ...options };
     const { width = 40, height = 30, cwd = process.cwd(), env = process.env } = mergedOptions;
 
