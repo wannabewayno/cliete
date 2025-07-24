@@ -1,6 +1,9 @@
-import { expect } from 'chai';
+import { config, expect } from 'chai';
 import type { Screen } from './Screen.js';
 import { sleep, timeout } from './utils/time.js';
+
+// Configure Chai to show full error messages without truncation
+config.truncateThreshold = 0;
 
 const errMessage = (fn: () => unknown): string => {
   try {

@@ -102,5 +102,17 @@ describe('Cliete integration tests', () => {
       await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
       await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit();
     });
+
+    it('should show the full error without truncation on timeout assertions', async () => {
+      Cliete.setDefault('width', 50);
+      Cliete.setDefault('height', 25);
+
+      const I = await Cliete.openTerminal('node');
+
+      const err = await I.wait.until.I.see("These are not the droids you're looking for").catch(err => err);
+      expect(err.message).to.equal(
+        `Timeout of 6000ms reached waiting to see\nexpected 'Welcome to Node.js ${nodeVersion}.\\nType ".help" for more information.\\n>' to equal 'These are not the droids you\\'re looking for'`,
+      );
+    });
   });
 });
