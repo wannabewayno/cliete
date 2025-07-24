@@ -1,14 +1,7 @@
 {
   "all": true,
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "**/test/**",
-    "**/__mocks__/**",
-    "**/interfaces/**",
-    "dist/**"
-  ],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/test/**", "**/__mocks__/**", "**/interfaces/**", "dist/**"],
   "extension": [".ts", ".tsx"],
   "reporter": ["text", "html", "lcov"],
   "report-dir": "coverage",

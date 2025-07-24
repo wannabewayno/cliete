@@ -242,7 +242,11 @@ export default class Cliete {
     const mergedOptions = { ...Cliete.defaultOpts, ...options };
     const { width = 40, height = 30, cwd = process.cwd(), env = process.env, timeout } = mergedOptions;
 
-    const [shell, ...args] = cmd.split(' ');
+    const [shell, ...args] = cmd
+      .replace(/'.+'|".+"/g, s => s.replace(/\s/g, '\x00'))
+      .split(' ')
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: Using a control character as it's very unlikely it will show up in commands.
+      .map(v => v.replace(/\x00/g, ' '));
     const terminal = spawn(shell ?? '', args, {
       name: 'cliete',
       cols: width,
