@@ -10,7 +10,7 @@ const errMessage = (fn: () => unknown): string => {
     fn();
     return '';
   } catch (err: unknown) {
-    return (err as Error).message;
+    return (err as Error).message.replace(/\\n/g, '\n');
   }
 };
 
