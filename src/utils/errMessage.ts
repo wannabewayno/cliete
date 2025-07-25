@@ -15,7 +15,7 @@ export default function errMessage(fn: () => unknown): string {
     return (err as Error).message
       .replace(/\\n/g, '\n')
       .replace(/\\u001b/g, '\u001b')
-      .replace(/\\'/, "'")
-      .replace(/\\"/, '"');
+      .replace(/\\'/g, "'")
+      .replace(/\\"/g, '"');
   }
 }

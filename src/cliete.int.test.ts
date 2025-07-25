@@ -122,7 +122,7 @@ describe('Cliete integration tests', () => {
       const I = await Cliete.openTerminal('node');
 
       const err = await I.see("These are not the droids you're looking for").catch(err => err);
-      expect(err).to.equal(
+      expect(err.message).to.equal(
         `expected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.' to equal 'These are not the droids you\'re looking for'`,
       );
     });
@@ -134,7 +134,7 @@ describe('Cliete integration tests', () => {
       const I = await Cliete.openTerminal('node');
 
       const err = await I.spot('droids').catch(err => err);
-      expect(err).to.equal(
+      expect(err.message).to.equal(
         `expected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.' to include 'droids'`,
       );
     });

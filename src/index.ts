@@ -191,8 +191,8 @@ export default class Cliete {
 
     const actual = this.screen.render();
 
-    const error = errMessage(() => expect(actual.trim()).to.equal(expected.join('\n')));
-    if (error) throw error;
+    const errorMessage = errMessage(() => expect(actual.trim()).to.equal(expected.join('\n')));
+    if (errorMessage) throw new Error(errorMessage);
   }
 
   /**
@@ -209,8 +209,8 @@ export default class Cliete {
 
     const actual = this.screen.render();
 
-    const error = errMessage(() => expect(actual.trim()).to.include(expected.join('\n')));
-    if (error) throw error;
+    const errorMessage = errMessage(() => expect(actual.trim()).to.include(expected.join('\n')));
+    if (errorMessage) throw new Error(errorMessage);
   }
 
   /**
