@@ -1,18 +1,10 @@
 import { config, expect } from 'chai';
 import type { Screen } from './Screen.js';
+import errMessage from './utils/errMessage.js';
 import { sleep, timeout } from './utils/time.js';
 
 // Configure Chai to show full error messages without truncation
 config.truncateThreshold = 0;
-
-const errMessage = (fn: () => unknown): string => {
-  try {
-    fn();
-    return '';
-  } catch (err: unknown) {
-    return (err as Error).message.replace(/\\n/g, '\n').replace(/\\u001b/g, '\u001b');
-  }
-};
 
 export default class AsyncAssertions {
   constructor(

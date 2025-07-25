@@ -4,6 +4,7 @@ import AsyncAssertions from './AsyncAssertions.test.js';
 import { Keyboard } from './Keyboard.js';
 import KeyStroke from './KeyStroke.js';
 import { Screen } from './Screen.js';
+import errMessage from './utils/errMessage.js';
 import { timeout, waitFor } from './utils/time.js';
 
 interface IProcess {
@@ -187,8 +188,11 @@ export default class Cliete {
    */
   async see(...expected: string[]) {
     await this.waitForCmdsToBuffer();
+
     const actual = this.screen.render();
-    expect(actual.trim()).to.equal(expected.join('\n'));
+
+    const error = errMessage(() => expect(actual.trim()).to.equal(expected.join('\n')));
+    if (error) throw error;
   }
 
   /**
@@ -204,7 +208,9 @@ export default class Cliete {
     await this.waitForCmdsToBuffer();
 
     const actual = this.screen.render();
-    expect(actual).to.include(expected.join('\n'));
+
+    const error = errMessage(() => expect(actual.trim()).to.include(expected.join('\n')));
+    if (error) throw error;
   }
 
   /**

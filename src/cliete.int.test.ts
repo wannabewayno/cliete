@@ -111,7 +111,31 @@ describe('Cliete integration tests', () => {
 
       const err = await I.wait.until.I.see("These are not the droids you're looking for").catch(err => err);
       expect(err.message).to.equal(
-        `Timeout of 6000ms reached waiting to see\nexpected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.\n>' to equal 'These are not the droids you\\'re looking for'`,
+        `Timeout of 6000ms reached waiting to see\nexpected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.\n>' to equal 'These are not the droids you're looking for'`,
+      );
+    });
+
+    it('should show the full error without truncation on base assertion see', async () => {
+      Cliete.setDefault('width', 50);
+      Cliete.setDefault('height', 25);
+
+      const I = await Cliete.openTerminal('node');
+
+      const err = await I.see("These are not the droids you're looking for").catch(err => err);
+      expect(err).to.equal(
+        `expected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.' to equal 'These are not the droids you\'re looking for'`,
+      );
+    });
+
+    it('should show the full error without truncation on base assertion spot', async () => {
+      Cliete.setDefault('width', 50);
+      Cliete.setDefault('height', 25);
+
+      const I = await Cliete.openTerminal('node');
+
+      const err = await I.spot('droids').catch(err => err);
+      expect(err).to.equal(
+        `expected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.' to include 'droids'`,
       );
     });
   });
