@@ -185,6 +185,26 @@ This is some text...
     });
   });
 
+  describe('Cliete.setDefaults()', () => {
+    afterEach(() => {
+      Cliete.clearDefaults();
+    });
+
+    it('should set multiple defaults at once', () => {
+      const result = Cliete.setDefaults({ width: 120, height: 50, timeout: 2000 });
+
+      expect((Cliete as any).defaultOpts).to.deep.equal({ width: 120, height: 50, timeout: 2000 });
+      expect(result).to.equal(Cliete);
+    });
+
+    it('should replace existing defaults', () => {
+      Cliete.setDefault('width', 80);
+      Cliete.setDefaults({ height: 30 });
+
+      expect((Cliete as any).defaultOpts).to.deep.equal({ height: 30 });
+    });
+  });
+
   describe('Cliete.clearDefaults()', () => {
     afterEach(() => {
       Cliete.clearDefaults();
@@ -195,10 +215,7 @@ This is some text...
     });
 
     it('should clear all defaults', () => {
-      Cliete.setDefault('width', 120);
-      Cliete.setDefault('height', 50);
-      Cliete.setDefault('cwd', '/tmp');
-      Cliete.setDefault('timeout', 1000);
+      Cliete.setDefaults({ width: 120, height: 50, cwd: '/tmp', timeout: 1000 });
 
       Cliete.clearDefaults();
 

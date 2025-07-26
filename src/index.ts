@@ -227,6 +227,18 @@ export default class Cliete {
   }
 
   /**
+   * Sets multiple default options for openTerminal method at once.
+   * @param defaults - Object containing default options to set
+   * @returns Cliete class for method chaining
+   * @example
+   * Cliete.setDefaults({ width: 120, height: 40, timeout: 2000, cwd: '/path/to/working/dir' });
+   */
+  static setDefaults(defaults: OpenTerminalOpts) {
+    Cliete.defaultOpts = defaults;
+    return Cliete;
+  }
+
+  /**
    * Clears all default options, resetting them to empty.
    * @example
    * Cliete.clearDefaults();
