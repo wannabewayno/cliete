@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noThenProperty: We've deliberately setup classes as 'thenables' */
 import { expect } from 'chai';
 import { spawn } from 'node-pty';
-import AsyncAssertions from './AsyncAssertions.test.js';
+import AsyncAssertions from './AsyncAssertions.js';
 import { Keyboard } from './Keyboard.js';
 import KeyStroke from './KeyStroke.js';
 import { Screen } from './Screen.js';
@@ -242,20 +242,21 @@ export default class Cliete {
   }
 
   /**
-   * Asserts that the current screen contains the specified substrings.
+   * Asserts that the current screen contains the specified substring or matches a regular expression.
    * Will wait for any outstanding wait conditions first.
    * If you don't know when the screen is ready, try using the handy `wait` modifiers
    * await I.wait.for.<...> or I.wait.until.<...>
-   * @param expected - Substrings that should be present in the screen output
+   * @param expected - Substring or Regular Expression that should be present in the screen output
    * @example
    * await I.spot('Fix: bugs'); // Find substring anywhere on screen
+   * await I.spot(/^commit: [a-f0-9]{40}$/m); // See if the screen matches the regular expression
    */
-  async spot(...expected: string[]) {
+  async spot(expected: string | RegExp) {
     await this.waitForCmdsToBuffer();
 
-    const actual = this.screen.render();
+    const actual = expect(this.screen.render().trim());
 
-    const errorMessage = errMessage(() => expect(actual.trim()).to.include(expected.join('\n')));
+    const errorMessage = errMessage(() => (expected instanceof RegExp ? actual.match(expected) : actual.include(expected)));
     if (errorMessage) throw new Error(errorMessage);
   }
 

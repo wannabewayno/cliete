@@ -127,10 +127,10 @@ This is some text...
       await expect(cliete.spot('missing')).to.be.rejected;
     });
 
-    it('should handle multiple substrings', async () => {
+    it('should handle regular expression', async () => {
       mockScreen.render.returns('first\nsecond\nthird');
 
-      await expect(cliete.spot('first', 'second')).to.be.fulfilled;
+      await expect(cliete.spot(/second/)).to.be.fulfilled;
     });
   });
 

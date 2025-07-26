@@ -35,16 +35,22 @@ export default class AsyncAssertions {
   }
 
   /**
-   * Asserts that the current screen contains the specified substrings.
+   * Asserts that the current screen contains the specified substring or regular expression.
    * @param expected - Substrings that should be present in the screen output
    * @example
    * await I.spot('Fix: bugs'); // Find substring anywhere on screen
+   * await I.spot(/^commit: [a-f0-9]{40}$/m); // See if the screen matches the regular expression
    */
-  async spot(...expected: string[]) {
+  async spot(expected: string | RegExp) {
     const assertion = () => {
-      const actual = this.screen.render();
-      expect(actual).to.include(expected.join('\n'));
+      const actual = expect(this.screen.render().trim());
+      expected instanceof RegExp ? actual.match(expected) : actual.include(expected);
     };
+
+    const actual = expect(this.screen.render().trim());
+
+    const errorMessage = errMessage(() => (expected instanceof RegExp ? actual.match(expected) : actual.include(expected)));
+    if (errorMessage) throw new Error(errorMessage);
 
     return this.assert(assertion, 'spot');
   }

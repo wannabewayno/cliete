@@ -218,11 +218,12 @@ await I.see(
 );
 ```
 
-### `I.spot(...expected: string[])`
-Asserts that the current screen contains the specified substrings.
+### `I.spot(expected: string | RegExp)`
+Asserts that the current screen contains the specified substring or matches a regular expression.
 
 ```typescript
-await I.spot('Fix: bugs');
+await I.spot('Fix: bugs'); // Find substring anywhere on screen
+await I.spot(/^commit: [a-f0-9]{40}$/m); // Match against regular expression
 ```
 
 ### `I.wait.for` - Explicit Waiting
