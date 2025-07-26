@@ -47,11 +47,6 @@ export default class AsyncAssertions {
       expected instanceof RegExp ? actual.match(expected) : actual.include(expected);
     };
 
-    const actual = expect(this.screen.render().trim());
-
-    const errorMessage = errMessage(() => (expected instanceof RegExp ? actual.match(expected) : actual.include(expected)));
-    if (errorMessage) throw new Error(errorMessage);
-
     return this.assert(assertion, 'spot');
   }
 
