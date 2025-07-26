@@ -233,10 +233,18 @@ Waits for a specific duration before continuing. Makes tests more readable by ex
 await I.wait.for.two.seconds.and.see('Loading complete');
 await I.wait.for.five.hundred.milliseconds.and.press.enter;
 
-// Wait for process conditions
-await I.wait.for.the.process.to.exit();
+// Wait for process to exit
+await I.wait.for.the.process.to.exit;
+
+// Wait for process with timeout and exit code validation
+await I.wait.for.the.process.to.exit.with.timeout.of(2000);
+await I.wait.for.the.process.to.exit.with.exit.code.zero;
+await I.wait.for.the.process.to.exit.with.nonZero.exit.code;
+
+// Screen settling
 const stableScreen = await I.wait.for.the.screen.to.settle().and.printScreen('color');
 // screen is in color!
+console.log(stableScreen);
 ```
 
 ### `I.wait.until` - Retry Until Success
@@ -247,8 +255,19 @@ Repeats assertions until they succeed or timeout. Perfect for waiting for dynami
 await I.wait.until.I.see('Build completed successfully');
 await I.wait.until.I.spot('Server started on port 3000');
 
+// Wait for process to exit
+await I.wait.until.the.process.exits;
+
 // Wait for process to exit with timeout
-await I.wait.until.the.process.exits(5000);
+await I.wait.until.the.process.exits.with.timeout.of(5000);
+
+// Wait for process to exit with specific exit code
+await I.wait.until.the.process.exits.with.exit.code.zero;
+await I.wait.until.the.process.exits.with.exit.code.of(1);
+await I.wait.until.the.process.exits.with.nonZero.exit.code;
+
+// Combine timeout and exit code validation
+await I.wait.until.the.process.exits.with.timeout.of(3000).with.exit.code.zero;
 ```
 
 ## Contributing
@@ -258,3 +277,48 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 ## License
 
 MIT
+
+## v0.10.x - ⚠️ Breaking Changes
+### Process Exit API Changes
+The process exit API has been updated for consistency to provide a more fluent interface with enhanced functionality for exit code validation and timeout configuration; this aligns with the natural language design philosophy
+```typescript
+// Validate specific exit codes
+await I.wait.for.the.process.to.exit.with.exit.code.zero;
+await I.wait.for.the.process.to.exit.with.exit.code.of(1);
+await I.wait.for.the.process.to.exit.with.nonZero.exit.code;
+
+// Combine timeout and exit code validation
+await I.wait.until.the.process.exits.with.timeout.of(3000).with.exit.code.zero;
+```
+
+**Before (v0.9.x and earlier):**
+```typescript
+// Function-based API
+await I.wait.for.the.process.to.exit();
+await I.wait.for.the.process.to.exit(5000); // with timeout
+await I.wait.until.the.process.exits();
+await I.wait.until.the.process.exits(5000); // with timeout
+```
+
+**After (v0.10.x and later):**
+```typescript
+// Property-based fluent API
+await I.wait.for.the.process.to.exit;
+await I.wait.for.the.process.to.exit.with.timeout.of(5000);
+await I.wait.until.the.process.exits;
+await I.wait.until.the.process.exits.with.timeout.of(5000);
+```
+
+#### Migration Steps
+
+1. **Remove function calls** - Change `.exit()` to `.exit` and `.exits()` to `.exits`
+2. **Update timeout syntax** - Change `.exit(timeout)` to `.exit.with.timeout.of(timeout)`
+
+#### Migration Examples
+
+| Before | After |
+|--------|-------|
+| `await I.wait.for.the.process.to.exit()` | `await I.wait.for.the.process.to.exit` |
+| `await I.wait.for.the.process.to.exit(2000)` | `await I.wait.for.the.process.to.exit.with.timeout.of(2000)` |
+| `await I.wait.until.the.process.exits()` | `await I.wait.until.the.process.exits` |
+| `await I.wait.until.the.process.exits(5000)` | `await I.wait.until.the.process.exits.with.timeout.of(5000)` |

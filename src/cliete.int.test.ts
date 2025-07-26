@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import { expect } from 'chai';
 import Cliete from './index.js';
+import { sleep } from './utils/time.js';
 
 describe('Cliete integration tests', () => {
   describe('Default Options', () => {
@@ -13,7 +14,7 @@ describe('Cliete integration tests', () => {
       Cliete.setDefault('height', 20);
 
       const I = await Cliete.openTerminal('echo "test"');
-      await I.wait.for.the.process.to.exit();
+      await I.wait.for.the.process.to.exit;
     });
 
     it('should override defaults with provided options', async () => {
@@ -21,7 +22,7 @@ describe('Cliete integration tests', () => {
       Cliete.setDefault('height', 20);
 
       const I = await Cliete.openTerminal('echo "test"', { width: 80, height: 25 });
-      await I.wait.for.the.process.to.exit();
+      await I.wait.for.the.process.to.exit;
     });
 
     it('should use built-in defaults after clearDefaults', async () => {
@@ -31,14 +32,14 @@ describe('Cliete integration tests', () => {
       Cliete.clearDefaults();
 
       const I = await Cliete.openTerminal('echo "test"');
-      await I.wait.for.the.process.to.exit();
+      await I.wait.for.the.process.to.exit;
     });
 
     it('should skip waitForUpdate when timeout is null', async () => {
       Cliete.setDefault('timeout', null);
 
       const I = await Cliete.openTerminal('echo');
-      await I.wait.for.the.process.to.exit();
+      await I.wait.for.the.process.to.exit;
     });
   });
 
@@ -90,7 +91,7 @@ describe('Cliete integration tests', () => {
       expect(after - before).to.be.at.least(99);
 
       // exit the session
-      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit();
+      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit;
     });
 
     it('should work with default options set', async () => {
@@ -100,7 +101,94 @@ describe('Cliete integration tests', () => {
       const I = await Cliete.openTerminal('node');
 
       await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
-      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit();
+      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit;
+    });
+
+    it('should throw an assertion error when we want a non-zero exit code and the process exits cleanly', async () => {
+      const I = await Cliete.openTerminal('node --version');
+
+      try {
+        await I.wait.for.the.process.to.exit.with.nonZero.exit.code;
+        throw new Error('Process exited with a non zero exit code, we need the process to exit cleanly.');
+      } catch (err: unknown) {
+        expect((err as Error).message).to.equal(
+          `Expected process to exit with non-zero code but instead exited with exit code of '0'`,
+        );
+      }
+    });
+
+    it('should NOT throw an assertion error when we want a zero exit code and the process exits cleanly', async () => {
+      const I = await Cliete.openTerminal('node --version');
+
+      try {
+        await I.wait.for.the.process.to.exit.with.exit.code.zero;
+      } catch {
+        throw new Error('Process exited with a non zero exit code, we need the process to exit cleanly.');
+      }
+    });
+
+    it('should throw and assertion error when the process exits with an unexpected error code', async () => {
+      const I = await Cliete.openTerminal('node not-a-valid-node-sub-command');
+
+      try {
+        await I.wait.for.the.process.to.exit.with.exit.code.of(2);
+        throw new Error('Process exited cleanly, we need the process to exit with a non-zero exit code');
+      } catch (err: unknown) {
+        expect((err as Error).message).to.equal(`Expected process to exit with '2' but instead exited with '1'`);
+      }
+    });
+
+    it('should throw and assertion error when the process exits with a nonZero exit code and we were expecting a clean exit', async () => {
+      const I = await Cliete.openTerminal('node not-a-valid-node-sub-command');
+
+      try {
+        await I.wait.for.the.process.to.exit.with.exit.code.zero;
+        throw new Error('Process exited cleanly, we need the process to exit with a non-zero exit code');
+      } catch (err: unknown) {
+        expect((err as Error).message).to.equal(`Expected process to exit with '0' but instead exited with '1'`);
+      }
+    });
+
+    it('should throw an error if the process does not exit within a custom timeout', async () => {
+      const I = await Cliete.openTerminal('node');
+
+      // Process is currently being kept-alive awaiting user input, it will not exit on it's own.
+      await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+      // Start a timed assertion.
+      const processExitPromise = I.wait.until.the.process.exits.with.timeout.of(2000);
+
+      // In pressing ctrl+c twice exits the repl session
+      sleep(3000).then(() => I.press.ctrlC.twice);
+
+      try {
+        await processExitPromise;
+      } catch (error: unknown) {
+        const errMessage = (error as Error).message;
+        if (!errMessage.includes('Timeout')) throw new Error(errMessage);
+      }
+
+      // test should fail if we get here and timer is still running (we've exited too early)
+    });
+
+    it('should NOT throw an error if the process does exit within a custom timeout', async () => {
+      const I = await Cliete.openTerminal('node');
+
+      // Process is currently being kept-alive awaiting user input, it will not exit on it's own.
+      await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+      // Start a timed assertion.
+      const processExitPromise = I.wait.until.the.process.exits.with.timeout.of(2000);
+
+      // In pressing ctrl+c twice exits the repl session
+      sleep(1000).then(() => I.press.ctrlC.twice);
+
+      try {
+        await processExitPromise;
+      } catch (error: unknown) {
+        if ((error as Error).message.includes('Timeout'))
+          throw new Error('Process failed to exit within the timeout of 3000ms');
+      }
     });
 
     it('should show the full error without truncation on timeout assertions', async () => {

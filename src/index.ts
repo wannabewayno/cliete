@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noThenProperty: We've deliberately setup classes as 'thenables' */
 import { expect } from 'chai';
 import { spawn } from 'node-pty';
 import AsyncAssertions from './AsyncAssertions.test.js';
@@ -5,11 +6,11 @@ import { Keyboard } from './Keyboard.js';
 import KeyStroke from './KeyStroke.js';
 import { Screen } from './Screen.js';
 import errMessage from './utils/errMessage.js';
-import { timeout, waitFor } from './utils/time.js';
 import Shell from './utils/ShellCmd.js';
+import { timeout, waitFor } from './utils/time.js';
 
 interface IProcess {
-  onExit: (listener: (...args: unknown[]) => void) => void;
+  onExit: (listener: (exitCode: number) => void) => void;
   kill: () => void;
   name: string;
   pid: string;
@@ -21,6 +22,56 @@ interface OpenTerminalOpts {
   env?: Record<string, string | undefined>;
   cwd?: string;
   timeout?: number | null;
+}
+
+class ProcessExitWithCode {
+  constructor(
+    private processExit: Promise<number> | null,
+    private timeoutMs?: number | null,
+    private expectedCode?: number | 'nonZero',
+  ) {}
+
+  get with() {
+    return {
+      timeout: {
+        of: (ms: number) => new ProcessExitWithCode(this.processExit, ms, this.expectedCode),
+      },
+      exit: {
+        code: {
+          of: (code: number) => new ProcessExitWithCode(this.processExit, this.timeoutMs, code),
+          zero: new ProcessExitWithCode(this.processExit, this.timeoutMs, 0),
+        },
+      },
+      nonZero: {
+        exit: {
+          code: new ProcessExitWithCode(this.processExit, this.timeoutMs, 'nonZero'),
+        },
+      },
+    };
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: unknown) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((error: Error) => TResult2 | PromiseLike<TResult2>) | null,
+  ): Promise<TResult1 | TResult2> {
+    if (!this.processExit) return Promise.resolve().then(onfulfilled, onrejected);
+
+    return timeout(this.processExit, 'process to exit', this.timeoutMs)
+      .then(exitCode => {
+        if (this.expectedCode !== undefined) {
+          if (this.expectedCode === 'nonZero') {
+            if (exitCode === 0)
+              throw new Error(
+                `Expected process to exit with non-zero code but instead exited with exit code of '${exitCode}'`,
+              );
+          } else {
+            if (exitCode !== this.expectedCode)
+              throw new Error(`Expected process to exit with '${this.expectedCode}' but instead exited with '${exitCode}'`);
+          }
+        }
+      })
+      .then(onfulfilled, onrejected);
+  }
 }
 
 /**
@@ -40,7 +91,7 @@ interface OpenTerminalOpts {
  */
 export default class Cliete {
   private static defaultOpts: OpenTerminalOpts = {};
-  private processExit: Promise<void> | null = null;
+  private processExit: Promise<number> | null = null;
   private promises: Set<Promise<unknown>> = new Set();
   /**
    * Creates a new Cliete instance with keyboard and screen components.
@@ -53,9 +104,9 @@ export default class Cliete {
     process?: IProcess,
   ) {
     if (process) {
-      // Setup a promise to read the process
-      this.processExit = new Promise<void>(resolve => {
-        process.onExit(() => resolve());
+      // Setup a promise to read the process exiting
+      this.processExit = new Promise<number>(resolve => {
+        process.onExit(exitCode => resolve(exitCode));
       }).finally(() => (this.processExit = null));
     }
   }
@@ -134,10 +185,7 @@ export default class Cliete {
       I: new AsyncAssertions(this.screen, { until: 6000 }),
       the: {
         process: {
-          exits: (timeoutMs?: number | null) => {
-            if (!this.processExit) return Promise.resolve();
-            return timeout(this.processExit, 'process to exit', timeoutMs);
-          },
+          exits: new ProcessExitWithCode(this.processExit),
         },
       },
     };
@@ -148,10 +196,7 @@ export default class Cliete {
       the: {
         process: {
           to: {
-            exit: (timeoutMs?: number | null) => {
-              if (!this.processExit) return Promise.resolve();
-              return timeout(this.processExit, 'process to exit', timeoutMs);
-            },
+            exit: new ProcessExitWithCode(this.processExit),
           },
         },
         screen: {
@@ -278,7 +323,7 @@ export default class Cliete {
     const keyboard = new Keyboard(terminal);
 
     const cliete = new Cliete(keyboard, screen, {
-      onExit: terminal.onExit,
+      onExit: (listener: (exitCode: number) => void) => terminal.onExit(({ exitCode }) => listener(exitCode)),
       kill: terminal.kill,
       name: terminal.process,
       pid: terminal.pid.toString(),
