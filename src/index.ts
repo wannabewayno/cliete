@@ -218,12 +218,14 @@ export default class Cliete {
    * Sets default options for openTerminal method.
    * @param type - The option type to set ('width', 'height', 'env', 'cwd', or 'timeout')
    * @param value - The default value to use
+   * @returns Cliete class for method chaining
    * @example
    * Cliete.setDefault('width', 120);
    * Cliete.setDefault('height', 40);
    */
   static setDefault<K extends keyof OpenTerminalOpts>(type: K, value: OpenTerminalOpts[K]) {
     Cliete.defaultOpts[type] = value;
+    return Cliete;
   }
 
   /**
