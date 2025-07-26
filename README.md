@@ -147,6 +147,25 @@ const I1 = await Cliete.openTerminal('git log'); // Uses all defaults
 const I2 = await Cliete.openTerminal('npm test', { width: 80 }); // Overrides width only
 ```
 
+### `Cliete.setDefaults(defaults: OpenTerminalOpts)`
+Sets multiple default options for the `openTerminal` method at once.
+
+```typescript
+// Set multiple defaults at once
+Cliete.setDefaults({
+  width: 120,
+  height: 40,
+  cwd: '/my/project',
+  timeout: 2000
+});
+
+// Method chaining supported
+Cliete
+  .setDefaults({ width: 80, height: 30 }) // Set multiple defaults at once
+  .setDefault('cwd', '/my/project') // set a specific default
+  .clearDefaults(); // Clear all defaults
+```
+
 ### `Cliete.clearDefaults()`
 Clears all default options, resetting them to empty.
 
