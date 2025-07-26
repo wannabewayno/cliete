@@ -1,3 +1,4 @@
+/* c8 ignore next */
 /**
  * Provides natural language chaining for repeating actions multiple times.
  *

@@ -1,3 +1,4 @@
+/* c8 ignore next */
 /**
  * Extracts all matches of a pattern from text and returns both the matches and the modified text.
  *

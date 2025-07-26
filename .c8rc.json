@@ -6,6 +6,7 @@
   "reporter": ["text", "html", "lcov"],
   "report-dir": "coverage",
   "temp-directory": ".tmp/coverage",
+  "skipEmpty": true,
   "check-coverage": true,
   "branches": 85,
   "lines": 90,

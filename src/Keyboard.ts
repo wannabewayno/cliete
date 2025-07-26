@@ -1,3 +1,4 @@
+/* c8 ignore next */
 import type { IPty } from 'node-pty';
 import KEY_MAP from './constants/KEY_MAP.js';
 

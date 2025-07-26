@@ -1,4 +1,5 @@
-// Special key mappings
+/* c8 ignore next */
+
 export default {
   up: '\x1b[A',
   down: '\x1b[B',

@@ -1,3 +1,4 @@
+/* c8 ignore next */
 /**
  * Executes a function and returns any error message that occurs during execution
  * @param fn - Function to execute

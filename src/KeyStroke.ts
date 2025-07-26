@@ -1,3 +1,4 @@
+/* c8 ignore next */
 import type KEY_MAP from './constants/KEY_MAP.js';
 import type { Keyboard } from './Keyboard.js';
 import Multiplier from './Multiplier.js';

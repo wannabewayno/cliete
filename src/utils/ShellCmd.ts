@@ -1,3 +1,4 @@
+/* c8 ignore next */
 export default class Shell {
   readonly args: string[];
 

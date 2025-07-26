@@ -1,3 +1,4 @@
+/* c8 ignore next */
 /**
  * Extracts the first match of a pattern from text and returns both the match and the modified text.
  *

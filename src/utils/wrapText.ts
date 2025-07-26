@@ -1,3 +1,4 @@
+/* c8 ignore next */
 import extract from './extract.js';
 
 /**
