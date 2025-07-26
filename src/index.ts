@@ -6,6 +6,7 @@ import KeyStroke from './KeyStroke.js';
 import { Screen } from './Screen.js';
 import errMessage from './utils/errMessage.js';
 import { timeout, waitFor } from './utils/time.js';
+import Shell from './utils/ShellCmd.js';
 
 interface IProcess {
   onExit: (listener: (...args: unknown[]) => void) => void;
@@ -248,12 +249,8 @@ export default class Cliete {
     const mergedOptions = { ...Cliete.defaultOpts, ...options };
     const { width = 40, height = 30, cwd = process.cwd(), env = process.env, timeout } = mergedOptions;
 
-    const [shell, ...args] = cmd
-      .replace(/'.+'|".+"/g, s => s.replace(/\s/g, '\x00'))
-      .split(' ')
-      // biome-ignore lint/suspicious/noControlCharactersInRegex: Using a control character as it's very unlikely it will show up in commands.
-      .map(v => v.replace(/\x00/g, ' '));
-    const terminal = spawn(shell ?? '', args, {
+    const { shell, args } = Shell.fromString(cmd);
+    const terminal = spawn(shell, args, {
       name: 'cliete',
       cols: width,
       rows: height,
