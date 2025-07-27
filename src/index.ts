@@ -120,17 +120,26 @@ export default class Cliete {
    * I.press.tab.twice.and.type('hello');
    */
   get press() {
-    const keyStrokes = new KeyStroke(this.keyboard, this);
+    const keyStrokes = new KeyStroke(this.keyboard, this.fallback);
 
-    // Define our action
-    const action = () => Promise.all(keyStrokes.keyStrokes);
+    // Subscribe to the keys the user pressed, if we need to repeat this we'll have a record of this.
+    const keysPressed: Parameters<Parameters<typeof keyStrokes.onKeyStroke>[0]>[0][] = [];
+    keyStrokes.onKeyStroke(key => keysPressed.push(key));
 
-    // Record the last action
-    this.lastAction = action;
+    // Record the last action as what-ever keys the user pressed
+    this.lastAction = () => Promise.resolve(keysPressed.forEach(key => this.keyboard.press(key)));
 
-    // execute the action as our self-deleting promise
-    this.addSelfDeletingPromise(action());
     return keyStrokes;
+  }
+
+  private get fallback(): { and: Cliete; until: Cliete['until'] } {
+    const self = this;
+    return {
+      and: self,
+      get until() {
+        return self.until;
+      },
+    };
   }
 
   /**
@@ -143,7 +152,7 @@ export default class Cliete {
    */
   type(text: string): { and: Cliete; until: Cliete['until'] } {
     // Action
-    const action = () => this.keyboard.type(text);
+    const action = () => Promise.resolve(this.keyboard.type(text));
 
     // Do the action once
     action();

@@ -12,18 +12,22 @@ import BaseMultiplier from './BaseMultiplier.js';
  * multiplier.twice.and.press('enter');
  * multiplier.twenty.one.times.and.type('hello');
  */
-export default class Multiplier<T> extends BaseMultiplier<T> {
+export default class Multiplier<And, Until> extends BaseMultiplier<And, Until> {
   /**
    * Executes action once and returns fallback for immediate chaining.
    * @returns Fallback object for method chaining
    */
   get and() {
-    return this.nth(1);
+    return this.nth(1).and;
+  }
+
+  get until() {
+    return this.nth(1).until;
   }
 
   /**
    * Executes the action once using alternative natural language.
-   * @returns Object with 'and' property for chaining
+   * @returns Object with 'and' and 'until' properties for chaining
    */
   get once() {
     return this.nth(1);

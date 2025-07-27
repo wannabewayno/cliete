@@ -5,12 +5,12 @@ import Multiplier from './Multiplier.js';
 
 describe('Multiplier', () => {
   let actionSpy: sinon.SinonSpy;
-  let fallbackObject: { method: () => void };
-  let multiplier: Multiplier<typeof fallbackObject>;
+  let fallbackObject: { and: () => 'AND'; until: () => 'UNTIL' };
+  let multiplier: Multiplier<() => void, () => void>;
 
   beforeEach(() => {
     actionSpy = sinon.spy();
-    fallbackObject = { method: sinon.spy() };
+    fallbackObject = { and: sinon.spy(), until: sinon.spy() };
     multiplier = new Multiplier(actionSpy, fallbackObject);
   });
 
@@ -19,11 +19,18 @@ describe('Multiplier', () => {
   });
 
   describe('and getter', () => {
-    it('should execute action once and return fallback', () => {
+    it('should execute action once and return and fallback', () => {
       const result = multiplier.and;
 
       expect(actionSpy).to.have.been.calledOnce;
-      expect(result).to.equal(fallbackObject);
+      expect(result).to.equal(fallbackObject.and);
+    });
+
+    it('should execute action once and return until fallback', () => {
+      const result = multiplier.until;
+
+      expect(actionSpy).to.have.been.calledOnce;
+      expect(result).to.equal(fallbackObject.until);
     });
   });
 

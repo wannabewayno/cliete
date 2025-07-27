@@ -1,4 +1,9 @@
 /* c8 ignore next */
+export interface Fallback<And, Until> {
+  and: And;
+  until: Until;
+}
+
 /**
  * Provides natural language chaining for repeating actions multiple times.
  *
@@ -15,7 +20,7 @@
  * // Equivalent to: press up 3 times, then press enter
  * ```
  */
-export default class BaseMultiplier<T> {
+export default class BaseMultiplier<And, Until> {
   /**
    * Creates a new multiplier for repeating actions.
    * @param action - Function to execute multiple times
@@ -23,7 +28,7 @@ export default class BaseMultiplier<T> {
    */
   constructor(
     protected readonly action: () => unknown,
-    protected readonly fallback: T,
+    protected readonly fallback: Fallback<And, Until>,
   ) {}
 
   /**
@@ -31,7 +36,7 @@ export default class BaseMultiplier<T> {
    * @param amount - Number of times to execute the action (default: 1)
    * @returns Object for further chaining
    */
-  nth(amount = 1) {
+  nth(amount = 1): Fallback<And, Until> {
     for (let index = 0; index < amount; index++) this.action();
     return this.fallback;
   }

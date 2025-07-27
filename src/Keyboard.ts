@@ -9,7 +9,7 @@ export class Keyboard {
     this.pty = pty;
   }
 
-  async type(text: string): Promise<void> {
+  type(text: string): void {
     this.pty.write(text);
   }
 

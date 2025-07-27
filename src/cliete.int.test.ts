@@ -270,6 +270,42 @@ describe('Cliete integration tests', () => {
         await I.type('1').until.I.spot('1');
         await I.press.backspace.and.type('.exit').and.press.enter.and.wait.for.the.process.to.exit.with.exit.code.zero;
       });
+
+      it("should preserve existing multiplication behaviour with 'and' and 'times'", async () => {
+        // We're keeping the height really small here so that previous command won't exist on the screen to be included in the search.
+        const I = await Cliete.openTerminal('node', { height: 4 });
+
+        // Wait for initial prompt
+        await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+        // Create some command history
+        await I.type('1 + 1').and.press.enter.and.wait.until.I.spot('> 1 + 1\n2\n>');
+        await I.type('2 + 2').and.press.enter.and.wait.until.I.spot('> 2 + 2\n4\n>');
+        await I.type('3 + 3').and.press.enter.and.wait.until.I.spot('> 3 + 3\n6\n>');
+        await I.type('4 + 4').and.press.enter.and.wait.until.I.spot('> 4 + 4\n8\n>');
+        await I.type('5 + 5').and.press.enter.and.wait.until.I.spot('> 5 + 5\n10\n>');
+
+        // Should be able to now traverse previous commands with the up arrow.
+        await I.press.up.five.times.and.wait.until.I.see('> 5 + 5', '10', '> > 1 + 1', '2');
+      });
+
+      it('should press keys until the screen shows the desired state', async () => {
+        // We're keeping the height really small here so that previous command won't exist on the screen to be included in the search.
+        const I = await Cliete.openTerminal('node', { height: 4 });
+
+        // Wait for initial prompt
+        await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+        // Create some command history
+        await I.type('1 + 1').and.press.enter.and.wait.until.I.spot('> 1 + 1\n2\n>');
+        await I.type('2 + 2').and.press.enter.and.wait.until.I.spot('> 2 + 2\n4\n>');
+        await I.type('3 + 3').and.press.enter.and.wait.until.I.spot('> 3 + 3\n6\n>');
+        await I.type('4 + 4').and.press.enter.and.wait.until.I.spot('> 4 + 4\n8\n>');
+        await I.type('5 + 5').and.press.enter.and.wait.until.I.spot('> 5 + 5\n10\n>');
+
+        // Should be able to now traverse previous commands with the up arrow.
+        await I.press.up.until.I.see('> 5 + 5', '10', '> > 2 + 2', '4');
+      });
     });
   });
 });

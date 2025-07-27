@@ -6,12 +6,12 @@ import Multiplier from './Multiplier.js';
 
 describe('KeyStroke', () => {
   let mockKeyboard: { press: sinon.SinonStub };
-  let fallbackObject: { method: () => void };
-  let keyStroke: KeyStroke<typeof fallbackObject>;
+  let fallbackObject: { and: () => 'AND'; until: () => 'UNTIL' };
+  let keyStroke: KeyStroke<() => string, () => string>;
 
   beforeEach(() => {
     mockKeyboard = { press: sinon.stub().resolves() };
-    fallbackObject = { method: sinon.spy() };
+    fallbackObject = { and: sinon.spy(), until: sinon.spy() };
     keyStroke = new KeyStroke(mockKeyboard as unknown as Keyboard, fallbackObject);
   });
 
@@ -22,7 +22,6 @@ describe('KeyStroke', () => {
   describe('constructor', () => {
     it('should initialize with keyboard and fallback', () => {
       expect(keyStroke).to.be.instanceOf(KeyStroke);
-      expect(keyStroke.keyStrokes).to.be.an('array').that.is.empty;
     });
   });
 
@@ -87,7 +86,6 @@ describe('KeyStroke', () => {
       keyStroke.enter.once;
 
       expect(mockKeyboard.press).to.have.been.calledWith('enter');
-      expect(keyStroke.keyStrokes).to.have.length(1);
     });
 
     it('should execute tab key press', () => {
@@ -141,27 +139,27 @@ describe('KeyStroke', () => {
 
   describe('natural language chaining', () => {
     it('should support multiple key presses with natural language', () => {
-      keyStroke.up.three.times.method();
+      keyStroke.up.three.times.and();
 
       expect(mockKeyboard.press).to.have.been.calledWith('up');
       expect(mockKeyboard.press).to.have.callCount(3);
     });
   });
 
-  describe('promise tracking', () => {
+  describe('keystroke tracking via onKeyStroke', () => {
     it('should track promises for key presses', () => {
+      const keyStrokeSpy = sinon.spy();
+      keyStroke.onKeyStroke(key => keyStrokeSpy(key));
+
+      // Hit enter twice
       keyStroke.enter.twice;
-
-      expect(keyStroke.keyStrokes).to.have.length(2);
-      expect(keyStroke.keyStrokes[0]).to.be.a('promise');
-      expect(keyStroke.keyStrokes[1]).to.be.a('promise');
-    });
-
-    it('should accumulate promises across multiple operations', () => {
       keyStroke.up.once;
-      keyStroke.down.twice;
+      keyStroke.down.five.times;
 
-      expect(keyStroke.keyStrokes).to.have.length(3);
+      expect(keyStrokeSpy).to.have.callCount(8);
+      expect(keyStrokeSpy.calledWith('enter')).to.be.true;
+      expect(keyStrokeSpy.calledWith('up')).to.be.true;
+      expect(keyStrokeSpy.calledWith('down')).to.be.true;
     });
   });
 });

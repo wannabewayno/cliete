@@ -1,7 +1,10 @@
 /* c8 ignore next */
+import type { Fallback } from './BaseMultiplier.js';
 import type KEY_MAP from './constants/KEY_MAP.js';
 import type { Keyboard } from './Keyboard.js';
 import Multiplier from './Multiplier.js';
+
+type KeyStrokeListener = (key: keyof typeof KEY_MAP) => void;
 
 /**
  * Provides natural language interface for executing keyboard interactions multiple times.
@@ -13,8 +16,8 @@ import Multiplier from './Multiplier.js';
  * keyStroke.up.three.times.and.enter.once.and.<TestContextMethod>
  * // Equivalent to: press up 3 times, then press enter once, then execute something native to testContext
  */
-export default class KeyStroke<T> {
-  keyStrokes: Promise<void>[] = [];
+export default class KeyStroke<And, Until> {
+  readonly keyStrokeListeners: Set<KeyStrokeListener> = new Set();
   /**
    * Creates a new KeyStroke instance for natural language keyboard interactions.
    * @param keyboard - Keyboard instance to execute key presses
@@ -22,15 +25,23 @@ export default class KeyStroke<T> {
    */
   constructor(
     private readonly keyboard: Keyboard,
-    private readonly fallback: T,
+    private readonly fallback: Fallback<And, Until>,
   ) {}
+
+  onKeyStroke(listener: KeyStrokeListener) {
+    this.keyStrokeListeners.add(listener);
+  }
 
   /**
    * Executes a key press and tracks the promise for completion.
    * @param key - Key identifier from KEY_MAP
    */
   private pressKey(key: keyof typeof KEY_MAP) {
-    this.keyStrokes.push(this.keyboard.press(key));
+    // press the key and record the key we pressed
+    this.keyboard.press(key);
+
+    // notify listeners of keys we've pressed
+    this.keyStrokeListeners.forEach(listener => listener(key));
   }
 
   /**

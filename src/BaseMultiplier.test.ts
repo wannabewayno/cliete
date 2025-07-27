@@ -4,12 +4,12 @@ import BaseMultiplier from './BaseMultiplier.js';
 
 describe('BaseMultiplier', () => {
   let actionSpy: sinon.SinonSpy;
-  let fallbackObject: { method: () => void };
-  let multiplier: BaseMultiplier<typeof fallbackObject>;
+  let fallbackObject: { and: () => void; until: () => void };
+  let multiplier: BaseMultiplier<() => void, () => void>;
 
   beforeEach(() => {
     actionSpy = sinon.spy();
-    fallbackObject = { method: sinon.spy() };
+    fallbackObject = { and: sinon.spy(), until: sinon.spy() };
     multiplier = new BaseMultiplier(actionSpy, fallbackObject);
   });
 
@@ -124,7 +124,7 @@ describe('BaseMultiplier', () => {
   describe('action execution', () => {
     it('should execute action with correct context', () => {
       const contextAction = sinon.spy();
-      const contextMultiplier = new BaseMultiplier(contextAction, {});
+      const contextMultiplier = new BaseMultiplier(contextAction, { and: () => {}, until: () => {} });
 
       contextMultiplier.three.times;
 
@@ -134,7 +134,7 @@ describe('BaseMultiplier', () => {
     it('should handle action that returns values', () => {
       let counter = 0;
       const countingAction = () => ++counter;
-      const countingMultiplier = new BaseMultiplier(countingAction, {});
+      const countingMultiplier = new BaseMultiplier(countingAction, { and: () => '', until: () => '' });
 
       countingMultiplier.four.times;
 
@@ -145,7 +145,7 @@ describe('BaseMultiplier', () => {
       const errorAction = () => {
         throw new Error('test error');
       };
-      const errorMultiplier = new BaseMultiplier(errorAction, {});
+      const errorMultiplier = new BaseMultiplier(errorAction, { and: () => {}, until: () => {} });
 
       expect(() => errorMultiplier.two.times).to.throw('test error');
     });
