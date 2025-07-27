@@ -126,7 +126,7 @@ describe('Cliete integration tests', () => {
       );
 
       // Clean exit
-      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit();
+      await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit.with.exit.code.zero;
     });
   });
 });
