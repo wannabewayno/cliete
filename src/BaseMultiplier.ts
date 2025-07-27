@@ -29,11 +29,11 @@ export default class BaseMultiplier<T> {
   /**
    * Executes the action a specified number of times.
    * @param amount - Number of times to execute the action (default: 1)
-   * @returns Object with 'and' property for chaining
+   * @returns Object for further chaining
    */
   nth(amount = 1) {
     for (let index = 0; index < amount; index++) this.action();
-    return { and: this.fallback };
+    return this.fallback;
   }
 
   /**

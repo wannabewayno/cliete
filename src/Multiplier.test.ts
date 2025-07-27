@@ -49,8 +49,7 @@ describe('Multiplier', () => {
     it('should return object with and property for chaining', () => {
       const result = multiplier.twice;
 
-      expect(result).to.have.property('and');
-      expect(result.and).to.equal(fallbackObject);
+      expect(result).to.equal(fallbackObject);
     });
   });
 
@@ -186,21 +185,21 @@ describe('Multiplier', () => {
       const result = multiplier.twenty.three.times;
 
       expect(actionSpy).to.have.callCount(23);
-      expect(result).to.have.property('and');
+      expect(result).to.equal(fallbackObject);
     });
 
     it('should support fifty plus additional operations', () => {
       const result = multiplier.fifty.five.times;
 
       expect(actionSpy).to.have.callCount(55);
-      expect(result).to.have.property('and');
+      expect(result).to.equal(fallbackObject);
     });
 
     it('should support hundred plus additional operations', () => {
       const result = multiplier.hundred.one.times;
 
       expect(actionSpy).to.have.callCount(101);
-      expect(result).to.have.property('and');
+      expect(result).to.equal(fallbackObject);
     });
   });
 

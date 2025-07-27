@@ -9,7 +9,7 @@ config.truncateThreshold = 0;
 export default class AsyncAssertions {
   constructor(
     private readonly screen: Screen,
-    private readonly opts: { preCondition?: Promise<unknown>; until?: number } = {},
+    private readonly opts: { preCondition?: Promise<unknown>; until?: number; action?: () => Promise<unknown> } = {},
   ) {}
 
   /**
@@ -69,6 +69,7 @@ export default class AsyncAssertions {
           assertion();
           return;
         } catch {
+          if (this.opts.action) await this.opts.action();
           await sleep(25);
         }
       }

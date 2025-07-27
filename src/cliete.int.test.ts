@@ -226,5 +226,50 @@ describe('Cliete integration tests', () => {
         `expected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.' to include 'droids'`,
       );
     });
+
+    describe('Until Action Repetition', () => {
+      it('should repeat press action until condition is met', async () => {
+        const I = await Cliete.openTerminal('node');
+
+        // Wait for initial prompt
+        await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+        // Type a command that creates multiple lines of output
+        await I.type('console.log("').and.type('A').until.I.spot('AAAAA');
+        await I.type('");').and.wait.until.I.spot('console.log("AAAAA");');
+
+        // Wait for output to appear
+        await I.press.enter.and.wait.until.I.spot('AAAAA\nundefined\n>');
+
+        await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit;
+      });
+
+      it('should not repeat action when wait is used', async () => {
+        const I = await Cliete.openTerminal('node');
+
+        // Wait for initial prompt
+        await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+        // Type a command that creates multiple lines of output
+        await I.type('console.log("').and.type('A').and.wait.until.I.spot('console.log("A');
+        await I.type('");').and.wait.until.I.spot('console.log("A");');
+
+        // Wait for output to appear
+        await I.press.enter.and.wait.until.I.spot('A\nundefined\n>');
+
+        await I.type('.exit').and.press.enter.and.wait.for.the.process.to.exit;
+      });
+
+      it('should work with type action until condition met', async () => {
+        const I = await Cliete.openTerminal('node');
+
+        await I.wait.until.I.see(`Welcome to Node.js ${nodeVersion}.`, 'Type ".help" for more information.', '>');
+
+        // This would be unusual but should work - type repeatedly until we see specific output
+        // Using a simple expression that will eventually show the result
+        await I.type('1').until.I.spot('1');
+        await I.press.backspace.and.type('.exit').and.press.enter.and.wait.for.the.process.to.exit.with.exit.code.zero;
+      });
+    });
   });
 });

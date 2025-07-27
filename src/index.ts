@@ -93,6 +93,7 @@ export default class Cliete {
   private static defaultOpts: OpenTerminalOpts = {};
   private processExit: Promise<number> | null = null;
   private promises: Set<Promise<unknown>> = new Set();
+  private lastAction?: () => Promise<unknown>;
   /**
    * Creates a new Cliete instance with keyboard and screen components.
    * @param keyboard - Keyboard instance for input simulation
@@ -120,7 +121,15 @@ export default class Cliete {
    */
   get press() {
     const keyStrokes = new KeyStroke(this.keyboard, this);
-    this.addSelfDeletingPromise(Promise.all(keyStrokes.keyStrokes));
+
+    // Define our action
+    const action = () => Promise.all(keyStrokes.keyStrokes);
+
+    // Record the last action
+    this.lastAction = action;
+
+    // execute the action as our self-deleting promise
+    this.addSelfDeletingPromise(action());
     return keyStrokes;
   }
 
@@ -132,9 +141,24 @@ export default class Cliete {
    * I.type('git status').and.press.enter.once;
    * I.type('hello world').and.see('hello world');
    */
-  type(text: string): { and: Cliete } {
-    this.keyboard.type(text);
-    return { and: this };
+  type(text: string): { and: Cliete; until: Cliete['until'] } {
+    // Action
+    const action = () => this.keyboard.type(text);
+
+    // Do the action once
+    action();
+
+    // record this as last action
+    this.lastAction = action;
+
+    const self = this;
+
+    return {
+      and: this,
+      get until() {
+        return self.until;
+      },
+    };
   }
 
   /**
@@ -172,6 +196,7 @@ export default class Cliete {
    * await I.wait.for.the.screen.to.settle().and.I.see('result') // wait for no more ui layout shifts within a reasonable period of time before asserting 'result'
    */
   get wait() {
+    this.lastAction = undefined;
     return {
       // Wait for a definitive process to occur
       for: this.for,
@@ -180,9 +205,9 @@ export default class Cliete {
     };
   }
 
-  private get until() {
+  get until() {
     return {
-      I: new AsyncAssertions(this.screen, { until: 6000 }),
+      I: new AsyncAssertions(this.screen, { until: 6000, action: this.lastAction }),
       the: {
         process: {
           exits: new ProcessExitWithCode(this.processExit),

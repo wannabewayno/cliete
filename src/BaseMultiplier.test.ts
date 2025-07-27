@@ -39,8 +39,7 @@ describe('BaseMultiplier', () => {
     it('should return object with and property', () => {
       const result = multiplier.nth(2);
 
-      expect(result).to.have.property('and');
-      expect(result.and).to.equal(fallbackObject);
+      expect(result).to.equal(fallbackObject);
     });
 
     it('should handle zero executions', () => {
@@ -111,12 +110,11 @@ describe('BaseMultiplier', () => {
       const result = multiplier.three;
 
       expect(result).to.have.property('times');
-      expect(result.times).to.have.property('and');
-      expect(result.times.and).to.equal(fallbackObject);
+      expect(result.times).to.equal(fallbackObject);
     });
 
     it('should support fluent chaining', () => {
-      const result = multiplier.two.times.and;
+      const result = multiplier.two.times;
 
       expect(result).to.equal(fallbackObject);
       expect(actionSpy).to.have.been.calledTwice;

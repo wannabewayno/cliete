@@ -18,7 +18,7 @@ export default class Multiplier<T> extends BaseMultiplier<T> {
    * @returns Fallback object for method chaining
    */
   get and() {
-    return this.nth(1).and;
+    return this.nth(1);
   }
 
   /**

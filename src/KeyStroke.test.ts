@@ -141,7 +141,7 @@ describe('KeyStroke', () => {
 
   describe('natural language chaining', () => {
     it('should support multiple key presses with natural language', () => {
-      keyStroke.up.three.times.and.method();
+      keyStroke.up.three.times.method();
 
       expect(mockKeyboard.press).to.have.been.calledWith('up');
       expect(mockKeyboard.press).to.have.callCount(3);

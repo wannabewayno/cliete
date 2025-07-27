@@ -34,6 +34,7 @@ await I.wait.until.I.see('Dynamic content appears');
 ### 🔄 Smart Waiting Strategies
 - **`wait.for`**: Explicit delays for known timing requirements
 - **`wait.until`**: Retry logic for dynamic content and async operations
+- **`action.until`**: Repeat actions until conditions are met
 - **Natural language**: `wait.for.two.seconds` vs `setTimeout(2000)`
 
 ### 📝 Self-Documenting Tests
@@ -41,6 +42,9 @@ await I.wait.until.I.see('Dynamic content appears');
 // Clear intent and readable flow
 await I.type('npm start').and.wait.until.I.spot('Server running')
 await I.wait.for.one.second.and.see('Ready to accept connections');
+
+// Dynamic navigation until target found
+await I.press.down.until.I.see('Target Item');
 ```
 
 ### 🎯 Precise Terminal Control
@@ -195,17 +199,26 @@ const I3 = await Cliete.openTerminal('echo test', { timeout: null }); // Skip in
 Provides a natural language interface for keyboard interactions.
 
 ```typescript
+// Fixed repetition
 I.press.up.three.times;
 I.press.tab.twice;
 I.press.enter.once;
+
+// Dynamic repetition until condition met
+await I.press.down.until.I.see('Target Item');
+await I.press.up.until.I.spot(/Page \d+ of \d+/);
 ```
 
 ### `I.type(text: string)`
 Types text into the terminal.
 
 ```typescript
+// Basic typing
 I.type('git status');
 I.type('hello world').and.press.enter.once;
+
+// Repeat typing until condition met
+await I.type('search term').until.I.spot('Results found');
 ```
 
 ### `I.see(...expected: string[])`
@@ -269,6 +282,42 @@ await I.wait.until.the.process.exits.with.nonZero.exit.code;
 
 // Combine timeout and exit code validation
 await I.wait.until.the.process.exits.with.timeout.of(3000).with.exit.code.zero;
+```
+
+### Action Repetition with `until`
+Repeat actions until screen conditions are met. Perfect for dynamic CLI interfaces where content location changes.
+
+```typescript
+// Navigate through paginated lists
+await I.press.down.until.I.see('Target Item');
+await I.press.up.until.I.spot(/Page 1 of \d+/);
+
+// Search until results appear
+await I.type('query').until.I.spot('Results:');
+
+// Navigate menus dynamically
+await I.press.right.until.I.see('Settings Menu');
+await I.press.tab.until.I.spot('Submit Button');
+
+// Important: wait clears the action
+await I.press.down.and.wait.until.I.see('Item'); // Only waits, doesn't repeat press
+```
+
+## Use Cases
+
+### Dynamic CLI Navigation
+Perfect for testing CLI applications with dynamic content:
+
+```typescript
+// Testing a file browser
+await I.press.down.until.I.see('target-file.txt');
+await I.press.enter.and.wait.until.I.see('File opened');
+
+// Testing paginated command output
+await I.press.space.until.I.spot('END OF FILE');
+
+// Testing interactive menus
+await I.press.right.until.I.see('Advanced Options');
 ```
 
 ## Contributing

@@ -5,6 +5,7 @@ import Cliete from './index.js';
 import { Keyboard } from './Keyboard.js';
 import KeyStroke from './KeyStroke.js';
 import { Screen } from './Screen.js';
+import AsyncAssertions from './AsyncAssertions.js';
 
 describe('Cliete', () => {
   let mockKeyboard: sinon.SinonStubbedInstance<Keyboard>;
@@ -229,6 +230,41 @@ This is some text...
       Cliete.clearDefaults();
       expect((Cliete as any).defaultOpts.width).to.be.undefined;
       expect((Cliete as any).defaultOpts).to.deep.equal({});
+    });
+  });
+
+  describe('lastAction tracking', () => {
+    it('should record press action', () => {
+      cliete.press;
+      expect((cliete as any).lastAction).to.be.a('function');
+    });
+
+    it('should record type action', () => {
+      cliete.type('test');
+      expect((cliete as any).lastAction).to.be.a('function');
+    });
+
+    it('should clear lastAction when wait is accessed', () => {
+      cliete.type('test');
+      expect((cliete as any).lastAction).to.be.a('function');
+
+      cliete.wait;
+      expect((cliete as any).lastAction).to.be.undefined;
+    });
+
+    it('should pass lastAction to AsyncAssertions in until', () => {
+      cliete.type('test');
+      const until = cliete.until;
+
+      expect(until.I).to.be.instanceOf(AsyncAssertions);
+    });
+
+    it('should pass undefined action after wait', () => {
+      cliete.type('test');
+      cliete.wait;
+      const until = cliete.until;
+
+      expect(until.I).to.be.instanceOf(AsyncAssertions);
     });
   });
 

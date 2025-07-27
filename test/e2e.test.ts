@@ -39,7 +39,7 @@ import Cliete from 'cliete';
 
 const I = await Cliete.openTerminal('node --version', { width: 40, height: 10 });
 await I.wait.until.I.spot('${nodeVersion}');
-await I.wait.for.the.process.to.exit();
+await I.wait.for.the.process.to.exit.with.exit.code.zero;
 console.log('E2E test passed!');
 `;
 
