@@ -111,9 +111,12 @@ describe('Cliete integration tests', () => {
         await I.wait.for.the.process.to.exit.with.nonZero.exit.code;
         throw new Error('Process exited with a non zero exit code, we need the process to exit cleanly.');
       } catch (err: unknown) {
-        expect((err as Error).message).to.equal(
+        const errorMessage = (err as Error).message;
+        expect(errorMessage).to.include(
           `Expected process to exit with non-zero code but instead exited with exit code of '0'`,
         );
+        expect(errorMessage).to.include('Screen content at time of exit:');
+        expect(errorMessage).to.include(nodeVersion); // Should show node version in screen content
       }
     });
 
@@ -134,7 +137,10 @@ describe('Cliete integration tests', () => {
         await I.wait.for.the.process.to.exit.with.exit.code.of(2);
         throw new Error('Process exited cleanly, we need the process to exit with a non-zero exit code');
       } catch (err: unknown) {
-        expect((err as Error).message).to.equal(`Expected process to exit with '2' but instead exited with '1'`);
+        const errorMessage = (err as Error).message;
+        expect(errorMessage).to.include(`Expected process to exit with '2' but instead exited with '1'`);
+        expect(errorMessage).to.include('Screen content at time of exit:');
+        expect(errorMessage).to.include('not-a-valid-node-sub-command');
       }
     });
 
@@ -145,7 +151,10 @@ describe('Cliete integration tests', () => {
         await I.wait.for.the.process.to.exit.with.exit.code.zero;
         throw new Error('Process exited cleanly, we need the process to exit with a non-zero exit code');
       } catch (err: unknown) {
-        expect((err as Error).message).to.equal(`Expected process to exit with '0' but instead exited with '1'`);
+        const errorMessage = (err as Error).message;
+        expect(errorMessage).to.include(`Expected process to exit with '0' but instead exited with '1'`);
+        expect(errorMessage).to.include('Screen content at time of exit:');
+        expect(errorMessage).to.include('not-a-valid-node-sub-command');
       }
     });
 
@@ -225,6 +234,36 @@ describe('Cliete integration tests', () => {
       expect(err.message).to.equal(
         `expected 'Welcome to Node.js ${nodeVersion}.\nType ".help" for more information.' to include 'droids'`,
       );
+    });
+
+    describe('Enhanced Exit Code Error Messages', () => {
+      it('should include screen content in exit code error messages', async () => {
+        const I = await Cliete.openTerminal('node -e "console.log(\'Error context\'); process.exit(1)"');
+
+        try {
+          await I.wait.for.the.process.to.exit.with.exit.code.zero;
+          throw new Error('Expected process to fail');
+        } catch (err: unknown) {
+          const errorMessage = (err as Error).message;
+          expect(errorMessage).to.include(`Expected process to exit with '0' but instead exited with '1'`);
+          expect(errorMessage).to.include('Screen content at time of exit:');
+          expect(errorMessage).to.include('Error context');
+        }
+      });
+
+      it('should show different screen content for different commands', async () => {
+        const I = await Cliete.openTerminal('node -e "console.log(\'Different output\'); process.exit(2)"');
+
+        try {
+          await I.wait.for.the.process.to.exit.with.exit.code.zero;
+          throw new Error('Expected process to fail');
+        } catch (err: unknown) {
+          const errorMessage = (err as Error).message;
+          expect(errorMessage).to.include(`Expected process to exit with '0' but instead exited with '2'`);
+          expect(errorMessage).to.include('Screen content at time of exit:');
+          expect(errorMessage).to.include('Different output');
+        }
+      });
     });
 
     describe('Until Action Repetition', () => {

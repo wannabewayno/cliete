@@ -27,6 +27,7 @@ interface OpenTerminalOpts {
 class ProcessExitWithCode {
   constructor(
     private processExit: Promise<number> | null,
+    private screen: Screen,
     private timeoutMs?: number | null,
     private expectedCode?: number | 'nonZero',
   ) {}
@@ -34,17 +35,17 @@ class ProcessExitWithCode {
   get with() {
     return {
       timeout: {
-        of: (ms: number) => new ProcessExitWithCode(this.processExit, ms, this.expectedCode),
+        of: (ms: number) => new ProcessExitWithCode(this.processExit, this.screen, ms, this.expectedCode),
       },
       exit: {
         code: {
-          of: (code: number) => new ProcessExitWithCode(this.processExit, this.timeoutMs, code),
-          zero: new ProcessExitWithCode(this.processExit, this.timeoutMs, 0),
+          of: (code: number) => new ProcessExitWithCode(this.processExit, this.screen, this.timeoutMs, code),
+          zero: new ProcessExitWithCode(this.processExit, this.screen, this.timeoutMs, 0),
         },
       },
       nonZero: {
         exit: {
-          code: new ProcessExitWithCode(this.processExit, this.timeoutMs, 'nonZero'),
+          code: new ProcessExitWithCode(this.processExit, this.screen, this.timeoutMs, 'nonZero'),
         },
       },
     };
@@ -59,14 +60,17 @@ class ProcessExitWithCode {
     return timeout(this.processExit, 'process to exit', this.timeoutMs)
       .then(exitCode => {
         if (this.expectedCode !== undefined) {
+          const screenContent = this.screen.render();
           if (this.expectedCode === 'nonZero') {
             if (exitCode === 0)
               throw new Error(
-                `Expected process to exit with non-zero code but instead exited with exit code of '${exitCode}'`,
+                `Expected process to exit with non-zero code but instead exited with exit code of '${exitCode}'\n\nScreen content at time of exit:\n${screenContent}`,
               );
           } else {
             if (exitCode !== this.expectedCode)
-              throw new Error(`Expected process to exit with '${this.expectedCode}' but instead exited with '${exitCode}'`);
+              throw new Error(
+                `Expected process to exit with '${this.expectedCode}' but instead exited with '${exitCode}'\n\nScreen content at time of exit:\n${screenContent}`,
+              );
           }
         }
       })
@@ -219,7 +223,7 @@ export default class Cliete {
       I: new AsyncAssertions(this.screen, { until: 6000, action: this.lastAction }),
       the: {
         process: {
-          exits: new ProcessExitWithCode(this.processExit),
+          exits: new ProcessExitWithCode(this.processExit, this.screen),
         },
       },
     };
@@ -230,7 +234,7 @@ export default class Cliete {
       the: {
         process: {
           to: {
-            exit: new ProcessExitWithCode(this.processExit),
+            exit: new ProcessExitWithCode(this.processExit, this.screen),
           },
         },
         screen: {
